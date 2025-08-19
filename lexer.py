@@ -4,7 +4,6 @@ from tokens import TokenType, Token
 
 @dataclass
 class State:
-    cursor = 0
     line = 1
     column = 1
 
