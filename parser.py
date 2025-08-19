@@ -6,5 +6,7 @@ from tokens import TokenType, Token
 class Parser:
     tokens: list[Token]
 
-    def parse(self):
-        pass
+    def parse(self) -> dict[str, str]:
+        result = {}
+
+        return result
