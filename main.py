@@ -1,5 +1,21 @@
+from lexer import Lexer
+from parser import Parser
+
+
 def main():
-    print("Hello from py-cfg-format!")
+    text = """username = "admin"
+password = "secret123"
+timeout = 30
+pi = 3.14159
+max_retries = 5
+enable_feature = "yes"
+theme = "dark"
+"""
+    tokens = Lexer(text).tokenize()
+
+    config = Parser(tokens).parse()
+
+    print(config)
 
 
 if __name__ == "__main__":
