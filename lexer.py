@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from tokens import TokenType, Token
 
 
 @dataclass
@@ -12,5 +13,7 @@ class State:
 class Lexer:
     text: str
 
-    def tokenize(self):
-        pass
+    def tokenize(self) -> list[Token]:
+        tokens: list[Token] = []
+
+        return tokens
