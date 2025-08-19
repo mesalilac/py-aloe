@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from tokens import TokenType, Token
 
 
@@ -14,10 +14,10 @@ class State:
 @dataclass
 class Lexer:
     text: str
+    tokens: list[Token] = field(default_factory=list)
 
     def tokenize(self) -> list[Token]:
         state = State()
-        tokens: list[Token] = []
 
         for line in self.text.splitlines():
             state.column = 1
@@ -30,4 +30,4 @@ class Lexer:
 
             state.line += 1
 
-        return tokens
+        return self.tokens
