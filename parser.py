@@ -39,8 +39,46 @@ def inspect_text(text: str, message: str, target: tuple[int, int], source="text"
 @dataclass
 class Parser:
     tokens: list[Token]
+    text: str
 
     def parse(self) -> dict[str, str]:
         result = {}
+
+        index = 0
+
+        def peek(new_index) -> Token | None:
+            if 0 < new_index < len(self.tokens):
+                return self.tokens[new_index]
+
+            return None
+
+        while index < len(self.tokens):
+            token = self.tokens[index]
+
+            if token.type == TokenType.IDENTIFIER:
+                key: str = token.value
+
+                equals_token = peek(index + 1)
+                if equals_token.type == TokenType.EQUALS:
+                    value_token = peek(index + 2)
+                    if value_token.type == TokenType.VALUE:
+                        value = value_token.value
+                        result[key] = value
+                    else:
+                        inspect_text(
+                            text=self.text,
+                            message="Missing value after '='",
+                            target=value_token.pos,
+                        )
+                        return result
+                else:
+                    inspect_text(
+                        text=self.text,
+                        message="Missing '=' after Key",
+                        target=equals_token.pos,
+                    )
+                    return result
+
+            index += 1
 
         return result

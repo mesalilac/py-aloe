@@ -18,7 +18,7 @@ def main():
 
     pprint(tokens)
 
-    config = Parser(tokens).parse()
+    config = Parser(tokens, TEST_TEXT).parse()
 
     pprint(config)
 
