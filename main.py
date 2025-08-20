@@ -12,7 +12,6 @@ enable_feature = "yes"
 theme = "dark"
 """
     tokens = Lexer(text).tokenize()
-
     config = Parser(tokens).parse()
 
     print(config)
