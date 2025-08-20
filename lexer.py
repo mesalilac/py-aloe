@@ -22,6 +22,10 @@ class Lexer:
         for line in self.text.splitlines():
             state.column = 1
 
+            if line.startswith("#"):
+                state.line += 1
+                continue
+
             print(f"line{state.line, state.column}:", line)
 
             for char in line:
