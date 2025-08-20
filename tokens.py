@@ -13,5 +13,5 @@ class TokenType(Enum):
 @dataclass
 class Token:
     type: TokenType
-    value: str
+    value: str | None
     pos: tuple[int, int]
