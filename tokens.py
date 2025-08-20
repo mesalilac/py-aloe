@@ -7,7 +7,6 @@ class TokenType(Enum):
     VALUE = auto()
     EQUALS = auto()
     NEWLINE = auto()
-    EOF = auto()
 
 
 @dataclass
