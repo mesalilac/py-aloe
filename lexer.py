@@ -7,7 +7,7 @@ class State:
     line = 1
     column = 1
 
-    def get_position(self) -> tuple[int, int]:
+    def into_tuple(self) -> tuple[int, int]:
         return (self.line, self.column)
 
 
