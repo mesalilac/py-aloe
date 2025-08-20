@@ -46,33 +46,18 @@ class Parser:
 
         index = 0
 
-        def peek(new_index) -> Token | None:
-            if 0 < new_index < len(self.tokens):
-                return self.tokens[new_index]
-
-            return None
+        def peek(offset: int) -> Token | None:
+            pos = index + offset
+            return self.tokens[pos] if 0 <= pos < len(self.tokens) else None
 
         while index < len(self.tokens):
             token = self.tokens[index]
 
             if token.type == TokenType.IDENTIFIER:
-                key: str = token.value
+                equals_token = peek(1)
+                value_token = peek(2)
 
-                equals_token = peek(index + 1)
-                if equals_token.type == TokenType.EQUALS:
-                    value_token = peek(index + 2)
-                    if value_token.type == TokenType.VALUE:
-                        value = value_token.value
-                        result[key] = value
-                    else:
-                        inspect_text(
-                            text=self.text,
-                            message="Missing value after '='",
-                            target=value_token.pos,
-                        )
-                        index += 1
-                        continue
-                else:
+                if not equals_token or equals_token.type != TokenType.EQUALS:
                     inspect_text(
                         text=self.text,
                         message="Missing '=' after Key",
@@ -80,6 +65,20 @@ class Parser:
                     )
                     index += 1
                     continue
+
+                if not value_token or value_token.type != TokenType.VALUE:
+                    inspect_text(
+                        text=self.text,
+                        message="Missing value after '='",
+                        target=value_token.pos,
+                    )
+                    index += 1
+                    continue
+
+                key = token.value
+                value = value_token.value
+
+                result[key] = value
 
             index += 1
 
