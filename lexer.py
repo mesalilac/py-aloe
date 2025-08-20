@@ -45,6 +45,13 @@ class Lexer:
                 self.tokens.append(Token(TokenType.EQUALS, None, state.into_tuple()))
                 state.column += len(value)
                 self.tokens.append(Token(TokenType.VALUE, value, state.into_tuple()))
+            else:
+                identifier = line.strip()
+                state.column += len(identifier)
+
+                self.tokens.append(
+                    Token(TokenType.IDENTIFIER, identifier, state.into_tuple())
+                )
 
             self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
             state.line += 1
