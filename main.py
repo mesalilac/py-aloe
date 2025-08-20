@@ -1,6 +1,7 @@
 from lexer import Lexer
 from parser import Parser
 
+
 TEST_TEXT = """username = "admin"
 password = "secret123"
 timeout = 30
