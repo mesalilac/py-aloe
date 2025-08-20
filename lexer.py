@@ -32,6 +32,7 @@ class Lexer:
                 print(f"char{state.line, state.column}:", char)
                 state.column += 1
 
+            self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
             state.line += 1
 
         return self.tokens
