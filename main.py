@@ -1,5 +1,6 @@
 from lexer import Lexer
 from parser import Parser
+from pprint import pprint
 
 
 TEST_TEXT = """username = "admin"
@@ -14,9 +15,12 @@ theme = "dark"
 
 def main():
     tokens = Lexer(TEST_TEXT).tokenize()
+
+    pprint(tokens)
+
     config = Parser(tokens).parse()
 
-    print(config)
+    pprint(config)
 
 
 if __name__ == "__main__":
