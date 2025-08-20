@@ -53,7 +53,7 @@ class Parser:
         while index < len(self.tokens):
             token = self.tokens[index]
 
-            if token.type == TokenType.IDENTIFIER:
+            if token.type == TokenType.KEY:
                 equals_token = peek(1)
                 value_token = peek(2)
 
