@@ -26,11 +26,25 @@ class Lexer:
                 state.line += 1
                 continue
 
-            print(f"line{state.line, state.column}:", line)
+            if "=" in line:
+                key, value = line.split("=")
 
-            for char in line:
-                print(f"char{state.line, state.column}:", char)
-                state.column += 1
+                key = key.strip()
+                value = value.strip()
+
+                if (
+                    value.startswith('"')
+                    and value.endswith('"')
+                    or value.startswith("'")
+                    and value.endswith("'")
+                ):
+                    value = value[1:-1]
+
+                state.column += len(key)
+                self.tokens.append(Token(TokenType.IDENTIFIER, key, state.into_tuple()))
+                self.tokens.append(Token(TokenType.EQUALS, None, state.into_tuple()))
+                state.column += len(value)
+                self.tokens.append(Token(TokenType.VALUE, value, state.into_tuple()))
 
             self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
             state.line += 1
