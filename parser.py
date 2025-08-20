@@ -70,14 +70,16 @@ class Parser:
                             message="Missing value after '='",
                             target=value_token.pos,
                         )
-                        return result
+                        index += 1
+                        continue
                 else:
                     inspect_text(
                         text=self.text,
                         message="Missing '=' after Key",
                         target=equals_token.pos,
                     )
-                    return result
+                    index += 1
+                    continue
 
             index += 1
 
