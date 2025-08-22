@@ -1,5 +1,5 @@
 from lexer import Lexer
-from parser import Parser
+from parser import Parser, ParserSyntaxError
 from pprint import pprint
 
 
@@ -10,6 +10,7 @@ pi = 3.14159
 max_retries = 5
 enable_feature = "yes"
 theme = "dark"
+test
 """
 
 
@@ -18,9 +19,12 @@ def main():
 
     pprint(tokens)
 
-    config = Parser(tokens, TEST_TEXT).parse()
+    try:
+        config = Parser(tokens, TEST_TEXT).parse()
 
-    pprint(config)
+        pprint(config)
+    except ParserSyntaxError as err:
+        err.print()
 
 
 if __name__ == "__main__":
