@@ -1,19 +1,26 @@
 import unittest
+from lexer import Lexer
+from tokens import Token, TokenType
 
-class TestStringMethods(unittest.TestCase):
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-    
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-    
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-        s.split(2)
-        
-if __name__ == '__main__':
+
+class TestLexer(unittest.TestCase):
+    def test_kv_tokens(self):
+        text = 'username = "admin"'
+
+        tokens = Lexer(text).tokenize()
+
+        expected_tokens = [
+            Token(type=TokenType.KEY, value="username", pos=(1, 9)),
+            Token(type=TokenType.EQUALS, value=None, pos=(1, 9)),
+            Token(type=TokenType.VALUE, value="admin", pos=(1, 14)),
+            Token(type=TokenType.NEWLINE, value=None, pos=(1, 14)),
+        ]
+
+        self.assertEqual(
+            tokens,
+            expected_tokens,
+        )
+
+
+if __name__ == "__main__":
     unittest.main()
