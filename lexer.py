@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from tokens import TokenType, Token
+from tokens import TokenType, Token, CHAR_COMMENT, CHAR_EQUALS
 
 
 @dataclass
@@ -20,14 +20,15 @@ class Lexer:
         state = State()
 
         for line in self.text.splitlines():
+            line = line.strip()
             state.column = 1
 
-            if line.startswith("#"):
+            if line.startswith(CHAR_COMMENT):
                 state.line += 1
                 continue
 
-            if "=" in line:
-                key, value = line.split("=")
+            if CHAR_EQUALS in line:
+                key, value = line.split(CHAR_EQUALS)
 
                 key = key.strip()
                 value = value.strip()

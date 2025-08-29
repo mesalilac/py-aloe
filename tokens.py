@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
+CHAR_COMMENT = "#"
+CHAR_EQUALS = "="
+
 
 class TokenType(Enum):
     KEY = auto()
