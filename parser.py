@@ -96,6 +96,7 @@ class Parser:
         result = {}
 
         index = 0
+        section_name: str | None = None
 
         def peek(offset: int) -> Token | None:
             pos = index + offset
@@ -103,6 +104,19 @@ class Parser:
 
         while index < len(self.tokens):
             token = self.tokens[index]
+
+            if token.type == TokenType.SECTION_NAME:
+                if token.value:
+                    section_name = token.value
+                else:
+                    raise ParserSyntaxError(
+                        text=self.text,
+                        message="Missing section name",
+                        position=equals_token.pos,
+                    )
+
+            if token.type == TokenType.LEFT_PARN:
+                section_name = None
 
             if token.type == TokenType.KEY:
                 equals_token = peek(1)
@@ -130,7 +144,13 @@ class Parser:
                 key = token.value
                 value = value_token.value
 
-                result[key] = value
+                if section_name:
+                    if section_name not in result:
+                        result[section_name] = {}
+
+                    result[section_name][key] = value
+                else:
+                    result[key] = value
 
             index += 1
 
