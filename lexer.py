@@ -38,6 +38,10 @@ class Lexer:
             line = line.strip()
             state.column = 1
 
+            if line.isspace():
+                insert_newline()
+                continue
+
             if line.startswith(CHAR_COMMENT):
                 comment = line.removeprefix(CHAR_COMMENT).strip()
                 push_token(TokenType.COMMENT, comment)
