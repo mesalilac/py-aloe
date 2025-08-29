@@ -107,7 +107,20 @@ class Parser:
 
             if token.type == TokenType.SECTION_NAME:
                 if token.value:
+                    if section_name:
+                        raise ParserSyntaxError(
+                            text=self.text,
+                            message="Missing LEFT_PARN '}' after section",
+                            position=equals_token.pos,
+                        )
                     section_name = token.value
+                    next_token = peek(2)
+                    if next_token and next_token.type != TokenType.RIGHT_PARN:
+                        raise ParserSyntaxError(
+                            text=self.text,
+                            message="Missing RIGHT_PARN '{' after section",
+                            position=equals_token.pos,
+                        )
                 else:
                     raise ParserSyntaxError(
                         text=self.text,
