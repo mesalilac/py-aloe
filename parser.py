@@ -138,7 +138,7 @@ class Parser:
                 if not equals_token or equals_token.type != TokenType.EQUALS:
                     raise ParserSyntaxError(
                         text=self.text,
-                        message="Missing '=' after Key",
+                        message=f"Missing '=' after Key '{key}'",
                         position=equals_token.pos,
                     )
 
