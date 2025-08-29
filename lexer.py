@@ -82,11 +82,6 @@ class Lexer:
                 push_token(TokenType.EQUALS, None)
                 state.column += len(value)
                 push_token(TokenType.VALUE, value)
-            else:
-                key = line.strip()
-                state.column += len(key)
-
-                push_token(TokenType.KEY, key)
 
             insert_newline()
 
