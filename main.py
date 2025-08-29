@@ -4,11 +4,13 @@ from pprint import pprint
 
 
 TEST_TEXT = """username = "admin"
+# Example comment.
 password = "secret123"
 timeout = 30
 pi = 3.14159
 max_retries = 5
 enable_feature = "yes"
+# UI theme, e.g [dark, light]
 theme = "dark"
 test
 """

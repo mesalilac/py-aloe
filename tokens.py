@@ -9,6 +9,7 @@ class TokenType(Enum):
     KEY = auto()
     VALUE = auto()
     EQUALS = auto()
+    COMMENT = auto()
     NEWLINE = auto()
 
 

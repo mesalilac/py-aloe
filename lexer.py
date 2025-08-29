@@ -24,6 +24,10 @@ class Lexer:
             state.column = 1
 
             if line.startswith(CHAR_COMMENT):
+                comment = line.removeprefix(CHAR_COMMENT).strip()
+                self.tokens.append(
+                    Token(TokenType.COMMENT, comment, state.into_tuple())
+                )
                 state.line += 1
                 continue
 
