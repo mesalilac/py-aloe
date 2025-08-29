@@ -1,5 +1,13 @@
 from dataclasses import dataclass, field
-from tokens import TokenType, Token, CHAR_COMMENT, CHAR_EQUALS
+from tokens import (
+    TokenType,
+    Token,
+    CHAR_COMMENT,
+    CHAR_EQUALS,
+    CHAR_SECTION_SYMBOL,
+    CHAR_LEFT_PARN,
+    CHAR_RIGHT_PARN,
+)
 
 
 @dataclass
@@ -28,6 +36,33 @@ class Lexer:
                 self.tokens.append(
                     Token(TokenType.COMMENT, comment, state.into_tuple())
                 )
+                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
+                state.line += 1
+                continue
+
+            if line.startswith(CHAR_SECTION_SYMBOL):
+                section_name = line.removeprefix(CHAR_SECTION_SYMBOL).strip()
+                self.tokens.append(
+                    Token(TokenType.SECTION_NAME, section_name, state.into_tuple())
+                )
+                state.column += len(CHAR_SECTION_SYMBOL) + len(section_name)
+                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
+                state.line += 1
+                continue
+
+            if line == CHAR_LEFT_PARN:
+                self.tokens.append(Token(TokenType.LEFT_PARN, None, state.into_tuple()))
+                state.column += len(CHAR_LEFT_PARN)
+                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
+                state.line += 1
+                continue
+
+            if line == CHAR_RIGHT_PARN:
+                self.tokens.append(
+                    Token(TokenType.RIGHT_PARN, None, state.into_tuple())
+                )
+                state.column += len(CHAR_RIGHT_PARN)
+                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
                 state.line += 1
                 continue
 

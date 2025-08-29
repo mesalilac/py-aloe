@@ -12,7 +12,10 @@ max_retries = 5
 enable_feature = "yes"
 # UI theme, e.g [dark, light]
 theme = "dark"
-test
+$network
+{
+    port = 8080
+}
 """
 
 

@@ -3,6 +3,9 @@ from enum import Enum, auto
 
 CHAR_COMMENT = "#"
 CHAR_EQUALS = "="
+CHAR_SECTION_SYMBOL = "$"
+CHAR_LEFT_PARN = "{"
+CHAR_RIGHT_PARN = "}"
 
 
 class TokenType(Enum):
@@ -10,6 +13,9 @@ class TokenType(Enum):
     VALUE = auto()
     EQUALS = auto()
     COMMENT = auto()
+    SECTION_NAME = auto()
+    LEFT_PARN = auto()
+    RIGHT_PARN = auto()
     NEWLINE = auto()
 
 
