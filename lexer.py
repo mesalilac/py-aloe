@@ -27,6 +27,10 @@ class Lexer:
     def tokenize(self) -> list[Token]:
         state = State()
 
+        def insert_newline():
+            self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
+            state.line += 1
+
         for line in self.text.splitlines():
             line = line.strip()
             state.column = 1
@@ -36,8 +40,7 @@ class Lexer:
                 self.tokens.append(
                     Token(TokenType.COMMENT, comment, state.into_tuple())
                 )
-                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
-                state.line += 1
+                insert_newline()
                 continue
 
             if line.startswith(CHAR_SECTION_SYMBOL):
@@ -46,15 +49,13 @@ class Lexer:
                     Token(TokenType.SECTION_NAME, section_name, state.into_tuple())
                 )
                 state.column += len(CHAR_SECTION_SYMBOL) + len(section_name)
-                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
-                state.line += 1
+                insert_newline()
                 continue
 
             if line == CHAR_LEFT_PARN:
                 self.tokens.append(Token(TokenType.LEFT_PARN, None, state.into_tuple()))
                 state.column += len(CHAR_LEFT_PARN)
-                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
-                state.line += 1
+                insert_newline()
                 continue
 
             if line == CHAR_RIGHT_PARN:
@@ -62,8 +63,7 @@ class Lexer:
                     Token(TokenType.RIGHT_PARN, None, state.into_tuple())
                 )
                 state.column += len(CHAR_RIGHT_PARN)
-                self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
-                state.line += 1
+                insert_newline()
                 continue
 
             if CHAR_EQUALS in line:
@@ -91,7 +91,6 @@ class Lexer:
 
                 self.tokens.append(Token(TokenType.KEY, key, state.into_tuple()))
 
-            self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
-            state.line += 1
+            insert_newline()
 
         return self.tokens
