@@ -27,8 +27,11 @@ class Lexer:
     def tokenize(self) -> list[Token]:
         state = State()
 
+        def push_token(type: TokenType, value: str | None):
+            self.tokens.append(Token(type=type, value=value, pos=state.into_tuple()))
+
         def insert_newline():
-            self.tokens.append(Token(TokenType.NEWLINE, None, state.into_tuple()))
+            push_token(TokenType.NEWLINE, None)
             state.line += 1
 
         for line in self.text.splitlines():
@@ -37,31 +40,25 @@ class Lexer:
 
             if line.startswith(CHAR_COMMENT):
                 comment = line.removeprefix(CHAR_COMMENT).strip()
-                self.tokens.append(
-                    Token(TokenType.COMMENT, comment, state.into_tuple())
-                )
+                push_token(TokenType.COMMENT, comment)
                 insert_newline()
                 continue
 
             if line.startswith(CHAR_SECTION_SYMBOL):
                 section_name = line.removeprefix(CHAR_SECTION_SYMBOL).strip()
-                self.tokens.append(
-                    Token(TokenType.SECTION_NAME, section_name, state.into_tuple())
-                )
+                push_token(TokenType.SECTION_NAME, section_name)
                 state.column += len(CHAR_SECTION_SYMBOL) + len(section_name)
                 insert_newline()
                 continue
 
             if line == CHAR_LEFT_PARN:
-                self.tokens.append(Token(TokenType.LEFT_PARN, None, state.into_tuple()))
+                push_token(TokenType.LEFT_PARN, None)
                 state.column += len(CHAR_LEFT_PARN)
                 insert_newline()
                 continue
 
             if line == CHAR_RIGHT_PARN:
-                self.tokens.append(
-                    Token(TokenType.RIGHT_PARN, None, state.into_tuple())
-                )
+                push_token(TokenType.RIGHT_PARN, None)
                 state.column += len(CHAR_RIGHT_PARN)
                 insert_newline()
                 continue
@@ -81,15 +78,15 @@ class Lexer:
                     value = value[1:-1]
 
                 state.column += len(key)
-                self.tokens.append(Token(TokenType.KEY, key, state.into_tuple()))
-                self.tokens.append(Token(TokenType.EQUALS, None, state.into_tuple()))
+                push_token(TokenType.KEY, key)
+                push_token(TokenType.EQUALS, None)
                 state.column += len(value)
-                self.tokens.append(Token(TokenType.VALUE, value, state.into_tuple()))
+                push_token(TokenType.VALUE, value)
             else:
                 key = line.strip()
                 state.column += len(key)
 
-                self.tokens.append(Token(TokenType.KEY, key, state.into_tuple()))
+                push_token(TokenType.KEY, key)
 
             insert_newline()
 
