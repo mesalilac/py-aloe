@@ -96,7 +96,7 @@ class Parser:
         result = {}
 
         index = 0
-        section_name: str | None = None
+        sections: list[str] = []
 
         def peek(offset: int) -> Token | None:
             pos = index + offset
@@ -107,13 +107,7 @@ class Parser:
 
             if token.type == TokenType.SECTION_NAME:
                 if token.value:
-                    if section_name:
-                        raise ParserSyntaxError(
-                            text=self.text,
-                            message="Missing LEFT_PARN '}' after section",
-                            position=equals_token.pos,
-                        )
-                    section_name = token.value
+                    sections.append(token.value)
                     next_token = peek(2)
                     if next_token and next_token.type != TokenType.RIGHT_PARN:
                         raise ParserSyntaxError(
@@ -129,7 +123,7 @@ class Parser:
                     )
 
             if token.type == TokenType.LEFT_PARN:
-                section_name = None
+                sections.pop()
 
             if token.type == TokenType.KEY:
                 equals_token = peek(1)
@@ -157,11 +151,16 @@ class Parser:
                 key = token.value
                 value = value_token.value
 
-                if section_name:
-                    if section_name not in result:
-                        result[section_name] = {}
+                if len(sections) > 0:
+                    section = result
 
-                    result[section_name][key] = value
+                    for name in sections:
+                        if name not in section:
+                            section[name] = {}
+
+                        section = section[name]
+
+                    section[key] = value
                 else:
                     result[key] = value
 

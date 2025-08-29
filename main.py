@@ -15,6 +15,10 @@ theme = "dark"
 $network
 {
     port = 8080
+    $local
+    {
+        port_num = 8300
+    }
 }
 """
 
