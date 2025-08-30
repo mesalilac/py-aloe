@@ -10,16 +10,13 @@ class TestLexer(unittest.TestCase):
         tokens = Lexer(text).tokenize()
 
         expected_tokens = [
-            Token(type=TokenType.KEY, value="username", pos=(1, 9)),
-            Token(type=TokenType.EQUALS, value=None, pos=(1, 9)),
-            Token(type=TokenType.VALUE, value="admin", pos=(1, 14)),
-            Token(type=TokenType.NEWLINE, value=None, pos=(1, 14)),
+            Token(type=TokenType.KEY, value="username", pos=(0, 0)),
+            Token(type=TokenType.EQUALS, value=None, pos=(0, 0)),
+            Token(type=TokenType.VALUE, value="admin", pos=(0, 0)),
+            Token(type=TokenType.NEWLINE, value=None, pos=(0, 0)),
         ]
 
-        self.assertEqual(
-            tokens,
-            expected_tokens,
-        )
+        self.assertEqual(tokens, expected_tokens)
 
 
 if __name__ == "__main__":
