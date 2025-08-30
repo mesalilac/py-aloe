@@ -109,7 +109,7 @@ class Parser:
                 if token.value:
                     sections.append(token.value)
                     next_token = peek(2)
-                    if next_token and next_token.type != TokenType.RIGHT_PARN:
+                    if next_token and next_token.type != TokenType.RIGHT_PAREN:
                         raise ParserSyntaxError(
                             text=self.text,
                             message="Missing RIGHT_PARN '{' after section",
@@ -122,7 +122,7 @@ class Parser:
                         position=equals_token.pos,
                     )
 
-            if token.type == TokenType.LEFT_PARN:
+            if token.type == TokenType.LEFT_PAREN:
                 sections.pop()
 
             if token.type == TokenType.KEY:

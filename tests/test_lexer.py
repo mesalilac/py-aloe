@@ -36,13 +36,13 @@ class TestLexer(unittest.TestCase):
         expected_tokens = [
             *KV_PAIR,
             *nl(TokenType.SECTION_NAME),
-            *nl(TokenType.RIGHT_PARN),
+            *nl(TokenType.RIGHT_PAREN),
             *KV_PAIR,
             *nl(TokenType.SECTION_NAME),
-            *nl(TokenType.RIGHT_PARN),
+            *nl(TokenType.RIGHT_PAREN),
             *KV_PAIR,
-            *nl(TokenType.LEFT_PARN),
-            *nl(TokenType.LEFT_PARN),
+            *nl(TokenType.LEFT_PAREN),
+            *nl(TokenType.LEFT_PAREN),
         ]
 
         self.assertEqual(tokens, expected_tokens)

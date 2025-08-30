@@ -14,8 +14,8 @@ class TokenType(Enum):
     EQUALS = auto()
     COMMENT = auto()
     SECTION_NAME = auto()
-    LEFT_PARN = auto()
-    RIGHT_PARN = auto()
+    LEFT_PAREN = auto()
+    RIGHT_PAREN = auto()
     NEWLINE = auto()
 
 

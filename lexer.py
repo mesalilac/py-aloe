@@ -56,13 +56,13 @@ class Lexer:
                 continue
 
             if line == CHAR_LEFT_PAREN:
-                push_token(TokenType.LEFT_PARN, None)
+                push_token(TokenType.LEFT_PAREN, None)
                 state.column += len(CHAR_LEFT_PAREN)
                 insert_newline()
                 continue
 
             if line == CHAR_RIGHT_PAREN:
-                push_token(TokenType.RIGHT_PARN, None)
+                push_token(TokenType.RIGHT_PAREN, None)
                 state.column += len(CHAR_RIGHT_PAREN)
                 insert_newline()
                 continue
