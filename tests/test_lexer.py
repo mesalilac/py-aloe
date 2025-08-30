@@ -2,6 +2,8 @@ import unittest
 from lexer import Lexer
 from tokens import Token, TokenType
 
+KV_PAIR = (TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE)
+
 
 class TestLexer(unittest.TestCase):
     def test_kv_tokens(self):
@@ -9,12 +11,7 @@ class TestLexer(unittest.TestCase):
 
         tokens = [t.type for t in Lexer(text).tokenize()]
 
-        expected_tokens = [
-            TokenType.KEY,
-            TokenType.EQUALS,
-            TokenType.VALUE,
-            TokenType.NEWLINE,
-        ]
+        expected_tokens = [*KV_PAIR]
 
         self.assertEqual(tokens, expected_tokens)
 
@@ -32,13 +29,13 @@ class TestLexer(unittest.TestCase):
         tokens = [t.type for t in Lexer(text).tokenize()]
 
         expected_tokens = [
-            *(TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE),
+            *KV_PAIR,
             *(TokenType.SECTION_NAME, TokenType.NEWLINE),
             *(TokenType.RIGHT_PARN, TokenType.NEWLINE),
-            *(TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE),
+            *KV_PAIR,
             *(TokenType.SECTION_NAME, TokenType.NEWLINE),
             *(TokenType.RIGHT_PARN, TokenType.NEWLINE),
-            *(TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE),
+            *KV_PAIR,
             *(TokenType.LEFT_PARN, TokenType.NEWLINE),
             *(TokenType.LEFT_PARN, TokenType.NEWLINE),
         ]
