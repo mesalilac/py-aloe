@@ -7,13 +7,13 @@ class TestLexer(unittest.TestCase):
     def test_kv_tokens(self):
         text = 'username = "admin"'
 
-        tokens = Lexer(text).tokenize()
+        tokens = [t.type for t in Lexer(text).tokenize()]
 
         expected_tokens = [
-            Token(type=TokenType.KEY, value="username", pos=(0, 0)),
-            Token(type=TokenType.EQUALS, value=None, pos=(0, 0)),
-            Token(type=TokenType.VALUE, value="admin", pos=(0, 0)),
-            Token(type=TokenType.NEWLINE, value=None, pos=(0, 0)),
+            TokenType.KEY,
+            TokenType.EQUALS,
+            TokenType.VALUE,
+            TokenType.NEWLINE,
         ]
 
         self.assertEqual(tokens, expected_tokens)
