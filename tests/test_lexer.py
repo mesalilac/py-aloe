@@ -5,6 +5,11 @@ from tokens import Token, TokenType
 KV_PAIR = (TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE)
 
 
+def nl(t: TokenType):
+    """Auto insert newline token"""
+    return (t, TokenType.NEWLINE)
+
+
 class TestLexer(unittest.TestCase):
     def test_kv_tokens(self):
         text = 'username = "admin"'
@@ -30,14 +35,14 @@ class TestLexer(unittest.TestCase):
 
         expected_tokens = [
             *KV_PAIR,
-            *(TokenType.SECTION_NAME, TokenType.NEWLINE),
-            *(TokenType.RIGHT_PARN, TokenType.NEWLINE),
+            *nl(TokenType.SECTION_NAME),
+            *nl(TokenType.RIGHT_PARN),
             *KV_PAIR,
-            *(TokenType.SECTION_NAME, TokenType.NEWLINE),
-            *(TokenType.RIGHT_PARN, TokenType.NEWLINE),
+            *nl(TokenType.SECTION_NAME),
+            *nl(TokenType.RIGHT_PARN),
             *KV_PAIR,
-            *(TokenType.LEFT_PARN, TokenType.NEWLINE),
-            *(TokenType.LEFT_PARN, TokenType.NEWLINE),
+            *nl(TokenType.LEFT_PARN),
+            *nl(TokenType.LEFT_PARN),
         ]
 
         self.assertEqual(tokens, expected_tokens)
