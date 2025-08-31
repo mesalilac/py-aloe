@@ -4,8 +4,8 @@ from enum import Enum, auto
 CHAR_COMMENT = "#"
 CHAR_EQUALS = "="
 CHAR_SECTION_SYMBOL = "$"
-CHAR_LEFT_PARN = "}"
-CHAR_RIGHT_PARN = "{"
+CHAR_LEFT_PAREN = "}"
+CHAR_RIGHT_PAREN = "{"
 
 
 class TokenType(Enum):
