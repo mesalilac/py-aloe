@@ -113,13 +113,13 @@ class Parser:
                         raise ParserSyntaxError(
                             text=self.text,
                             message="Missing RIGHT_PARN '{' after section",
-                            position=equals_token.pos,
+                            position=next_token.pos,
                         )
                 else:
                     raise ParserSyntaxError(
                         text=self.text,
                         message="Missing section name",
-                        position=equals_token.pos,
+                        position=token.pos,
                     )
 
             if token.type == TokenType.LEFT_PAREN:
