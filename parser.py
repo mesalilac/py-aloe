@@ -112,7 +112,7 @@ class Parser:
                     if next_token and next_token.type != TokenType.RIGHT_PAREN:
                         raise ParserSyntaxError(
                             text=self.text,
-                            message="Missing'{' after section",
+                            message="Missing '{' after section",
                             position=next_token.pos,
                         )
                 else:
