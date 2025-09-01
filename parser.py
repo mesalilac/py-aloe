@@ -129,40 +129,36 @@ class Parser:
                 equals_token = peek(1)
                 value_token = peek(2)
 
-                if not equals_token or equals_token.type != TokenType.EQUALS:
+                if equals_token and equals_token.type != TokenType.EQUALS:
                     raise ParserSyntaxError(
                         text=self.text,
                         message=f"Missing '=' after Key '{key}'",
                         position=equals_token.pos,
                     )
 
-                    index += 1
-                    continue
-
-                if not value_token or value_token.type != TokenType.VALUE:
+                if value_token and value_token.type != TokenType.VALUE:
                     raise ParserSyntaxError(
                         text=self.text,
                         message="Missing value after '='",
                         position=value_token.pos,
                     )
-                    index += 1
-                    continue
 
-                key = token.value
-                value = value_token.value
+                if value_token:
+                    key = token.value
+                    value = value_token.value
 
-                if len(sections) > 0:
-                    section = result
+                    if len(sections) > 0:
+                        section = result
 
-                    for name in sections:
-                        if name not in section:
-                            section[name] = {}
+                        for name in sections:
+                            if name not in section:
+                                section[name] = {}
 
-                        section = section[name]
+                            section = section[name]
 
-                    section[key] = value
-                else:
-                    result[key] = value
+                        section[key] = value
+                    else:
+                        result[key] = value
 
             index += 1
 
