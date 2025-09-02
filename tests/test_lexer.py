@@ -25,6 +25,25 @@ class TestLexer(unittest.TestCase):
                 $network
                 {
                     port = 8080
+                }"""
+
+        tokens = [t.type for t in Lexer(text).tokenize()]
+
+        expected_tokens = [
+            *KV_PAIR,
+            *nl(TokenType.SECTION_NAME),
+            *nl(TokenType.RIGHT_PAREN),
+            *KV_PAIR,
+            *nl(TokenType.LEFT_PAREN),
+        ]
+
+        self.assertEqual(tokens, expected_tokens)
+
+    def test_tokenize_nested_section(self):
+        text = """username = "admin"
+                $network
+                {
+                    port = 8080
                     $local
                     {
                         port_num = 8300
