@@ -1,0 +1,41 @@
+"""Concrete syntax trees"""
+
+from __future__ import annotations
+
+
+class Node: ...
+
+
+class Comment(Node):
+    def __init__(self, text):
+        self.text = text
+
+    def __str__(self):
+        return self.text
+
+
+class Assignment(Node):
+    def __init__(self, key: str, value: str):
+        self.key = key
+        self.value = value
+
+    def __str__(self):
+        return f"{self.key} = {self.value}"
+
+
+class Section(Node):
+    def __init__(self, name: str, body_items: list[Section | Assignment | Comment]):
+        self.name = name
+        self.body_items = body_items
+
+    def __str__(self):
+        body = "".join(map(str, self.body_items))
+        return self.name + "{" + body + "}"
+
+
+class Document(Node):
+    def __init__(self, items: list[Section | Assignment | Comment]):
+        self.items = items
+
+    def __str__(self):
+        return "".join(map(str, self.items))
