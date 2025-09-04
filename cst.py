@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 
-class Node: ...
+class Node:
+    def __str__(self) -> str:
+        raise NotImplementedError
 
 
 class Comment(Node):
