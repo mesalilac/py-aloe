@@ -5,8 +5,8 @@ from tokens import (
     CHAR_COMMENT,
     CHAR_EQUALS,
     CHAR_SECTION_SYMBOL,
-    CHAR_LEFT_PAREN,
-    CHAR_RIGHT_PAREN,
+    CHAR_CURLY_CLOSE,
+    CHAR_CURLY_OPEN,
 )
 
 
@@ -56,15 +56,15 @@ class Lexer:
                 insert_newline()
                 continue
 
-            if line == CHAR_LEFT_PAREN:
-                push_token(TokenType.LEFT_PAREN)
-                state.column += len(CHAR_LEFT_PAREN)
+            if line == CHAR_CURLY_CLOSE:
+                push_token(TokenType.CURLY_CLOSE)
+                state.column += len(CHAR_CURLY_CLOSE)
                 insert_newline()
                 continue
 
-            if line == CHAR_RIGHT_PAREN:
-                push_token(TokenType.RIGHT_PAREN)
-                state.column += len(CHAR_RIGHT_PAREN)
+            if line == CHAR_CURLY_OPEN:
+                push_token(TokenType.CURLY_OPEN)
+                state.column += len(CHAR_CURLY_OPEN)
                 insert_newline()
                 continue
 

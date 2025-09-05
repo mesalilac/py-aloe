@@ -4,8 +4,8 @@ from enum import Enum, auto
 CHAR_COMMENT = "#"
 CHAR_EQUALS = "="
 CHAR_SECTION_SYMBOL = "$"
-CHAR_LEFT_PAREN = "}"
-CHAR_RIGHT_PAREN = "{"
+CHAR_CURLY_OPEN = "{"
+CHAR_CURLY_CLOSE = "}"
 
 
 class TokenType(Enum):
@@ -14,8 +14,8 @@ class TokenType(Enum):
     EQUALS = auto()
     COMMENT = auto()
     SECTION_NAME = auto()
-    LEFT_PAREN = auto()
-    RIGHT_PAREN = auto()
+    CURLY_CLOSE = auto()
+    CURLY_OPEN = auto()
     NEWLINE = auto()
     EMPTY_LINE = auto()
     EOF = auto()

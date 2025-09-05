@@ -32,9 +32,9 @@ class TestLexer(unittest.TestCase):
         expected_tokens = [
             *KV_PAIR,
             *nl(TokenType.SECTION_NAME),
-            *nl(TokenType.RIGHT_PAREN),
+            *nl(TokenType.CURLY_OPEN),
             *KV_PAIR,
-            *nl(TokenType.LEFT_PAREN),
+            *nl(TokenType.CURLY_CLOSE),
         ]
 
         self.assertEqual(tokens, expected_tokens)
@@ -55,13 +55,13 @@ class TestLexer(unittest.TestCase):
         expected_tokens = [
             *KV_PAIR,
             *nl(TokenType.SECTION_NAME),
-            *nl(TokenType.RIGHT_PAREN),
+            *nl(TokenType.CURLY_OPEN),
             *KV_PAIR,
             *nl(TokenType.SECTION_NAME),
-            *nl(TokenType.RIGHT_PAREN),
+            *nl(TokenType.CURLY_OPEN),
             *KV_PAIR,
-            *nl(TokenType.LEFT_PAREN),
-            *nl(TokenType.LEFT_PAREN),
+            *nl(TokenType.CURLY_CLOSE),
+            *nl(TokenType.CURLY_CLOSE),
         ]
 
         self.assertEqual(tokens, expected_tokens)
