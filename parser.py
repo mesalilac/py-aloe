@@ -151,6 +151,24 @@ class Parser:
                 cst_items.append(blank_line)
 
             if token.type == TokenType.SECTION_NAME and token.value:
+                tok1 = peek(1)
+                tok2 = peek(2)
+
+                if not (
+                    (tok1 and tok1.type == TokenType.LBRACE)
+                    or (
+                        tok1
+                        and tok1.type == TokenType.NEWLINE
+                        and tok2
+                        and tok2.type == TokenType.LBRACE
+                    )
+                ):
+                    raise ParserSyntaxError(
+                        text=text,
+                        message="Missing '{' after section name",
+                        position=token.pos,
+                    )
+
                 section = Section(token.value, [])
                 sections.append(section)
 
