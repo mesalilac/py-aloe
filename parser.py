@@ -140,6 +140,8 @@ class Parser:
 
                 items.append(blank_line)
 
+            # TODO: Parse section body recursively
+
             index += 1
 
         return Document(items)
