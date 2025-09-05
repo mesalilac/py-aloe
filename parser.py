@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from tokens import TokenType, Token
-from cst import Comment, Document, T_CstItemsList, Assignment, Comment
+from cst import Comment, Document, T_CstItemsList, Assignment, Comment, BlankLine
 
 
 def inspect_text(text: str, message: str, target: tuple[int, int], source="text"):
@@ -134,6 +134,11 @@ class Parser:
                 comment = Comment(token.value or "")
 
                 items.append(comment)
+
+            if token.type == TokenType.BLANK_LINE:
+                blank_line = BlankLine()
+
+                items.append(blank_line)
 
             index += 1
 
