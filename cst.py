@@ -18,7 +18,7 @@ class Comment(Node):
         return "# " + self.text
 
     def __repr__(self):
-        return self.__str__()
+        return "Comment" + "(" + self.__str__() + ")"
 
 
 class Assignment(Node):
@@ -30,7 +30,7 @@ class Assignment(Node):
         return f"{self.key} = {self.value}"
 
     def __repr__(self):
-        return self.__str__()
+        return "Assignment" + "(" + self.__str__() + ")"
 
 
 class Section(Node):
@@ -43,7 +43,7 @@ class Section(Node):
         return self.name + "{" + body + "}"
 
     def __repr__(self):
-        return self.__str__()
+        return "Section" + "(" + self.__str__() + ")"
 
 
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment]
