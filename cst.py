@@ -36,6 +36,17 @@ class Assignment(Node):
         return "Assignment" + "(" + self.__str__() + ")"
 
 
+class BlankLine(Node):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return ""
+
+    def __repr__(self):
+        return "BlankLine" + "(" + self.__str__() + ")"
+
+
 class Section(Node):
     def __init__(self, name: str, body_items: list[Section | Assignment | Comment]):
         self.name = name
