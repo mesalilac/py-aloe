@@ -15,7 +15,10 @@ class Comment(Node):
         self.text = text
 
     def __str__(self):
-        return self.text
+        return "# " + self.text
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Assignment(Node):
@@ -26,6 +29,9 @@ class Assignment(Node):
     def __str__(self):
         return f"{self.key} = {self.value}"
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Section(Node):
     def __init__(self, name: str, body_items: list[Section | Assignment | Comment]):
@@ -35,6 +41,9 @@ class Section(Node):
     def __str__(self):
         body = "".join(map(str, self.body_items))
         return self.name + "{" + body + "}"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment]
