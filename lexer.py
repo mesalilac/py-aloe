@@ -27,11 +27,11 @@ class Lexer:
     def tokenize(self) -> list[Token]:
         state = State()
 
-        def push_token(type: TokenType, value: str | None):
+        def push_token(type: TokenType, value: str | None = None):
             self.tokens.append(Token(type=type, value=value, pos=state.into_tuple()))
 
         def insert_newline():
-            push_token(TokenType.NEWLINE, None)
+            push_token(TokenType.NEWLINE)
             state.line += 1
 
         for line in self.text.splitlines():
@@ -39,7 +39,7 @@ class Lexer:
             state.column = 1
 
             if line.isspace() or not line:
-                push_token(TokenType.EMPTY_LINE, None)
+                push_token(TokenType.EMPTY_LINE)
                 state.line += 1
                 continue
 
@@ -57,13 +57,13 @@ class Lexer:
                 continue
 
             if line == CHAR_LEFT_PAREN:
-                push_token(TokenType.LEFT_PAREN, None)
+                push_token(TokenType.LEFT_PAREN)
                 state.column += len(CHAR_LEFT_PAREN)
                 insert_newline()
                 continue
 
             if line == CHAR_RIGHT_PAREN:
-                push_token(TokenType.RIGHT_PAREN, None)
+                push_token(TokenType.RIGHT_PAREN)
                 state.column += len(CHAR_RIGHT_PAREN)
                 insert_newline()
                 continue
@@ -84,12 +84,12 @@ class Lexer:
 
                 state.column += len(key)
                 push_token(TokenType.KEY, key)
-                push_token(TokenType.EQUALS, None)
+                push_token(TokenType.EQUALS)
                 state.column += len(value)
                 push_token(TokenType.VALUE, value)
 
             insert_newline()
 
-        push_token(TokenType.EOF, None)
+        push_token(TokenType.EOF)
 
         return self.tokens
