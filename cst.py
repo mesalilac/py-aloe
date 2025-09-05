@@ -48,7 +48,9 @@ class BlankLine(Node):
 
 
 class Section(Node):
-    def __init__(self, name: str, body_items: list[Section | Assignment | Comment]):
+    def __init__(
+        self, name: str, body_items: list[Section | Assignment | Comment | BlankLine]
+    ):
         self.name = name
         self.body_items = body_items
 
@@ -60,7 +62,7 @@ class Section(Node):
         return "Section" + "(" + self.__str__() + ")"
 
 
-T_CstItemsList: TypeAlias = list[Section | Assignment | Comment]
+T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
 
 
 class Document(Node):
