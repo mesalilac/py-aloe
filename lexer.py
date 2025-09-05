@@ -38,8 +38,9 @@ class Lexer:
             line = line.strip()
             state.column = 1
 
-            if line.isspace():
-                insert_newline()
+            if line.isspace() or not line:
+                push_token(TokenType.EMPTY_LINE, None)
+                state.line += 1
                 continue
 
             if line.startswith(CHAR_COMMENT):
