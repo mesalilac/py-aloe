@@ -16,7 +16,7 @@ class TokenType(Enum):
     SECTION_NAME = auto()
     LBRACE = auto()  # {
     RBRACE = auto()  # }
-    NEW_LINE = auto()  # \n
+    NEWLINE = auto()  # \n
     BLANK_LINE = auto()
     EOF = auto()
 

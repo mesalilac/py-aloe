@@ -31,7 +31,7 @@ class Lexer:
             self.tokens.append(Token(type=type, value=value, pos=state.into_tuple()))
 
         def insert_newline():
-            push_token(TokenType.NEW_LINE)
+            push_token(TokenType.NEWLINE)
             state.line += 1
 
         for line in self.text.splitlines():
