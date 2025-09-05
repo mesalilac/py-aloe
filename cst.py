@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TypeAlias
+
 
 class Node:
     def __str__(self) -> str:
@@ -35,8 +37,11 @@ class Section(Node):
         return self.name + "{" + body + "}"
 
 
+T_CstItemsList: TypeAlias = list[Section | Assignment | Comment]
+
+
 class Document(Node):
-    def __init__(self, items: list[Section | Assignment | Comment]):
+    def __init__(self, items: T_CstItemsList):
         self.items = items
 
     def __str__(self):
