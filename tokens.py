@@ -11,12 +11,12 @@ CHAR_RBRACE = "}"
 class TokenType(Enum):
     KEY = auto()
     VALUE = auto()
-    EQUALS = auto()
+    EQUALS = auto()  # =
     COMMENT = auto()
     SECTION_NAME = auto()
-    LBRACE = auto()
-    RBRACE = auto()
-    NEW_LINE = auto()
+    LBRACE = auto()  # {
+    RBRACE = auto()  # }
+    NEW_LINE = auto()  # \n
     BLANK_LINE = auto()
     EOF = auto()
 
