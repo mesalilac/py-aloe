@@ -17,6 +17,7 @@ class TokenType(Enum):
     LEFT_PAREN = auto()
     RIGHT_PAREN = auto()
     NEWLINE = auto()
+    EMPTY_LINE = auto()
 
 
 @dataclass
