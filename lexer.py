@@ -90,4 +90,6 @@ class Lexer:
 
             insert_newline()
 
+        push_token(TokenType.EOF, None)
+
         return self.tokens
