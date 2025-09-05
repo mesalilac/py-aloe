@@ -15,7 +15,7 @@ class Comment(Node):
         self.text = text
 
     def __str__(self):
-        return "# " + self.text
+        return self.text
 
     def __repr__(self):
         return "Comment" + "(" + self.__str__() + ")"
@@ -27,7 +27,10 @@ class Assignment(Node):
         self.value = value
 
     def __str__(self):
-        return f"{self.key} = {self.value}"
+        key = self.key
+        value = self.value
+
+        return f"{key=}, {value=}"
 
     def __repr__(self):
         return "Assignment" + "(" + self.__str__() + ")"
