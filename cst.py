@@ -46,3 +46,10 @@ class Document(Node):
 
     def __str__(self):
         return "".join(map(str, self.items))
+
+    def to_text(self) -> str:
+        lines: list[str] = []
+
+        # TODO: convert document items into text file
+
+        return "\n".join(lines)
