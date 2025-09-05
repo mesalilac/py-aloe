@@ -17,7 +17,7 @@ class TokenType(Enum):
     CURLY_OPEN = auto()
     CURLY_CLOSE = auto()
     NEWLINE = auto()
-    EMPTY_LINE = auto()
+    BLANK_LINE = auto()
     EOF = auto()
 
 

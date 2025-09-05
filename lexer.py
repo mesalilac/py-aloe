@@ -39,7 +39,7 @@ class Lexer:
             state.column = 1
 
             if line.isspace() or not line:
-                push_token(TokenType.EMPTY_LINE)
+                push_token(TokenType.BLANK_LINE)
                 state.line += 1
                 continue
 
