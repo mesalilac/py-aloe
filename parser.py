@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from tokens import TokenType, Token
+from cst import Comment, Document, T_CstItemsList, Assignment, Comment
 
 
 def inspect_text(text: str, message: str, target: tuple[int, int], source="text"):
@@ -37,7 +38,7 @@ def inspect_text(text: str, message: str, target: tuple[int, int], source="text"
 
 
 class ParserSyntaxError(Exception):
-    def __init__(self, text: str, message: str, position: tuple[int, int]):
+    def __init__(self, *, text: str, message: str, position: tuple[int, int]):
         self.message: str = message
         self.position: tuple[int, int] = position
         self.source: str = "text"
@@ -87,79 +88,53 @@ class ParserSyntaxError(Exception):
             print_line(line_index + 2, self.line_after)
 
 
-@dataclass
 class Parser:
-    tokens: list[Token]
-    text: str
+    def __init__(self):
+        pass
 
-    def parse(self) -> dict[str, str]:
-        result = {}
+    def parse(self, text: str, tokens: list[Token]) -> Document:
+        items: T_CstItemsList = []
 
         index = 0
-        sections: list[str] = []
 
-        def peek(offset: int) -> Token | None:
-            pos = index + offset
-            return self.tokens[pos] if 0 <= pos < len(self.tokens) else None
+        def peek(offset) -> Token | None:
+            target = index + offset
 
-        while index < len(self.tokens):
-            token = self.tokens[index]
+            if target < 0 or target >= len(tokens):
+                return None
 
-            if token.type == TokenType.SECTION_NAME:
-                if token.value:
-                    sections.append(token.value)
-                    next_token = peek(2)
-                    if next_token and next_token.type != TokenType.RIGHT_PAREN:
-                        raise ParserSyntaxError(
-                            text=self.text,
-                            message="Missing '{' after section",
-                            position=next_token.pos,
-                        )
-                else:
-                    raise ParserSyntaxError(
-                        text=self.text,
-                        message="Missing section name",
-                        position=token.pos,
-                    )
+            return tokens[target]
 
-            if token.type == TokenType.LEFT_PAREN:
-                sections.pop()
+        while index < len(tokens) and tokens[index] != TokenType.EOF:
+            token = tokens[index]
 
             if token.type == TokenType.KEY:
                 equals_token = peek(1)
                 value_token = peek(2)
 
-                if equals_token and equals_token.type != TokenType.EQUALS:
+                if not equals_token or equals_token.type != TokenType.EQUALS:
                     raise ParserSyntaxError(
-                        text=self.text,
-                        message=f"Missing '=' after Key '{key}'",
-                        position=equals_token.pos,
+                        text=text,
+                        message="Missing '=' after key",
+                        position=token.pos,
                     )
 
-                if value_token and value_token.type != TokenType.VALUE:
+                if not value_token or value_token.type != TokenType.VALUE:
                     raise ParserSyntaxError(
-                        text=self.text,
-                        message="Missing value after '='",
-                        position=value_token.pos,
+                        text=text,
+                        message="Missing VALUE after '='",
+                        position=token.pos,
                     )
 
-                if value_token:
-                    key = token.value
-                    value = value_token.value
+                if token.value and value_token.value:
+                    assignment = Assignment(token.value, value_token.value)
+                    items.append(assignment)
 
-                    if len(sections) > 0:
-                        section = result
+            if token.type == TokenType.COMMENT:
+                comment = Comment(token.value or "")
 
-                        for name in sections:
-                            if name not in section:
-                                section[name] = {}
-
-                            section = section[name]
-
-                        section[key] = value
-                    else:
-                        result[key] = value
+                items.append(comment)
 
             index += 1
 
-        return result
+        return Document(items)

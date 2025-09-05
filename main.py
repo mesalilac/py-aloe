@@ -29,9 +29,9 @@ def main():
     pprint(tokens)
 
     try:
-        config = Parser(tokens, TEST_TEXT).parse()
+        document = Parser().parse(TEST_TEXT, tokens)
 
-        pprint(config)
+        pprint(document.items)
     except ParserSyntaxError as err:
         err.print()
 
