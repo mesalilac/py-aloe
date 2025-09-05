@@ -2,12 +2,12 @@ import unittest
 from lexer import Lexer
 from tokens import Token, TokenType
 
-KV_PAIR = (TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEWLINE)
+KV_PAIR = (TokenType.KEY, TokenType.EQUALS, TokenType.VALUE, TokenType.NEW_LINE)
 
 
 def nl(t: TokenType):
     """Auto insert newline token"""
-    return (t, TokenType.NEWLINE)
+    return (t, TokenType.NEW_LINE)
 
 
 class TestLexer(unittest.TestCase):
