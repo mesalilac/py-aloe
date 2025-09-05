@@ -1,6 +1,14 @@
 from dataclasses import dataclass
 from tokens import TokenType, Token
-from cst import Comment, Document, T_CstItemsList, Assignment, Comment, BlankLine
+from cst import (
+    Comment,
+    Document,
+    Section,
+    T_CstItemsList,
+    Assignment,
+    Comment,
+    BlankLine,
+)
 
 
 def inspect_text(text: str, message: str, target: tuple[int, int], source="text"):
@@ -96,6 +104,7 @@ class Parser:
         items: T_CstItemsList = []
 
         index = 0
+        sections: list[Section] = []
 
         def peek(offset) -> Token | None:
             target = index + offset
@@ -106,6 +115,7 @@ class Parser:
             return tokens[target]
 
         while index < len(tokens) and tokens[index] != TokenType.EOF:
+            cst_items = items if len(sections) == 0 else sections[-1].body_items
             token = tokens[index]
 
             if token.type == TokenType.KEY:
@@ -128,19 +138,44 @@ class Parser:
 
                 if token.value and value_token.value:
                     assignment = Assignment(token.value, value_token.value)
-                    items.append(assignment)
+                    cst_items.append(assignment)
 
             if token.type == TokenType.COMMENT:
                 comment = Comment(token.value or "")
 
-                items.append(comment)
+                cst_items.append(comment)
 
             if token.type == TokenType.BLANK_LINE:
                 blank_line = BlankLine()
 
-                items.append(blank_line)
+                cst_items.append(blank_line)
 
-            # TODO: Parse section body recursively
+            if token.type == TokenType.SECTION_NAME and token.value:
+                section = Section(token.value, [])
+                sections.append(section)
+
+            if token.type == TokenType.LBRACE:
+                if not sections:
+                    raise ParserSyntaxError(
+                        text=text,
+                        message="Unexpected '{' with no open sections",
+                        position=token.pos,
+                    )
+
+            if token.type == TokenType.RBRACE:
+                if not sections:
+                    raise ParserSyntaxError(
+                        text=text,
+                        message="Unexpected '}' with no open sections",
+                        position=token.pos,
+                    )
+
+                section = sections.pop()
+
+                if sections:
+                    sections[-1].body_items.append(section)
+                else:
+                    items.append(section)
 
             index += 1
 
