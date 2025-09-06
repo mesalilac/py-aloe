@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TypeAlias
 
 
-class Node:
+class CstNode:
     def __str__(self) -> str:
         raise NotImplementedError
 
 
-class Comment(Node):
+class Comment(CstNode):
     def __init__(self, text):
         self.text = text
 
@@ -21,7 +21,7 @@ class Comment(Node):
         return "Comment" + "(" + self.__str__() + ")"
 
 
-class Assignment(Node):
+class Assignment(CstNode):
     def __init__(self, key: str, value: str):
         self.key = key
         self.value = value
@@ -36,7 +36,7 @@ class Assignment(Node):
         return "Assignment" + "(" + self.__str__() + ")"
 
 
-class BlankLine(Node):
+class BlankLine(CstNode):
     def __init__(self):
         pass
 
@@ -47,7 +47,7 @@ class BlankLine(Node):
         return "BlankLine" + "(" + self.__str__() + ")"
 
 
-class Section(Node):
+class Section(CstNode):
     def __init__(
         self,
         name: str,
@@ -70,7 +70,7 @@ class Section(Node):
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
 
 
-class Document(Node):
+class Document(CstNode):
     def __init__(self, items: T_CstItemsList):
         self.items = items
 
