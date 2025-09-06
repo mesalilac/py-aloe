@@ -49,10 +49,16 @@ class Lexer:
                 insert_newline()
                 continue
 
-            # TODO: tokenize LBRACE on the same line of the section name
             if line.startswith(CHAR_SECTION_SYMBOL):
                 section_name = line.removeprefix(CHAR_SECTION_SYMBOL).strip()
-                push_token(TokenType.SECTION_NAME, section_name)
+
+                if section_name.endswith(CHAR_LBRACE):
+                    section_name = section_name.removesuffix(CHAR_LBRACE).strip()
+                    push_token(TokenType.SECTION_NAME, section_name)
+                    push_token(TokenType.LBRACE)
+                else:
+                    push_token(TokenType.SECTION_NAME, section_name)
+
                 state.column += len(CHAR_SECTION_SYMBOL) + len(section_name)
                 insert_newline()
                 continue

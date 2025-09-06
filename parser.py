@@ -170,6 +170,10 @@ class Parser:
                     )
 
                 section = Section(token.value, [])
+
+                if tok1 and tok1.type == TokenType.LBRACE:
+                    section.inline_lbrace = True
+
                 sections.append(section)
 
             if token.type == TokenType.LBRACE:

@@ -49,14 +49,19 @@ class BlankLine(Node):
 
 class Section(Node):
     def __init__(
-        self, name: str, body_items: list[Section | Assignment | Comment | BlankLine]
+        self,
+        name: str,
+        body_items: list[Section | Assignment | Comment | BlankLine],
+        inline_lbrace: bool = False,
     ):
         self.name = name
+        self.inline_lbrace = inline_lbrace
         self.body_items = body_items
 
     def __str__(self):
+        inlined = " inline" if self.inline_lbrace else ""
         body = "".join(map(str, self.body_items))
-        return self.name + "{" + body + "}"
+        return self.name + inlined + "{" + body + "}"
 
     def __repr__(self):
         return "Section" + "(" + self.__str__() + ")"
