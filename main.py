@@ -1,3 +1,4 @@
+from cfg import Cfg
 from lexer import Lexer
 from parser import Parser, ParserSyntaxError
 from pprint import pprint
@@ -29,9 +30,11 @@ def main():
     pprint(tokens)
 
     try:
-        document = Parser().parse(TEST_TEXT, tokens)
+        cfg = Cfg.from_text(TEST_TEXT)
 
-        pprint(document.items)
+        pprint(cfg.document.items)
+
+        pprint(cfg.to_text())
     except ParserSyntaxError as err:
         err.print()
 

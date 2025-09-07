@@ -9,12 +9,11 @@ class Cfg:
     def __init__(self, document: Document):
         self.document: Document = document
 
-    # TODO: return Document from Parser parse method
-    # @classmethod
-    # def from_text(cls, text: str) -> Cfg:
-    #     tokens = Lexer(text).tokenize()
-    #     document = Parser(tokens, text).parse()
-    #     return cls(document)
+    @classmethod
+    def from_text(cls, text: str):
+        tokens = Lexer(text).tokenize()
+        document = Parser().parse(text, tokens)
+        return cls(document)
 
     def to_text(self) -> str:
         raise NotImplementedError
