@@ -71,5 +71,27 @@ class Cfg:
     def remove(self, path: str) -> None:
         raise NotImplementedError
 
-    def clear(self, path: str) -> None:
-        self.document.items.clear()
+    def clear(self, path: str | None = None) -> None:
+        if path is None:
+            self.document.items.clear()
+            return None
+
+        path_parts = path.split(".")
+
+        current_scope = self.document.items
+
+        for index, part in enumerate(path_parts):
+            is_last_part = index == len(path_parts) - 1
+
+            for node in current_scope:
+                match node:
+                    case Assignment():
+                        if is_last_part and node.key == part:
+                            node.value = ""
+                            return None
+                    case Section():
+                        if is_last_part:
+                            node.body_items.clear()
+                            return None
+                        if node.name == part:
+                            current_scope = node.body_items
