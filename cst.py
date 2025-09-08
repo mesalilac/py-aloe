@@ -1,8 +1,16 @@
 """Concrete syntax trees"""
 
 from __future__ import annotations
-
 from typing import TypeAlias
+from tokens import (
+    CHAR_SECTION_SYMBOL,
+    CHAR_LBRACE,
+    CHAR_RBRACE,
+    CHAR_COMMENT,
+    CHAR_EQUALS,
+)
+
+DEFAULT_INDENT = 4
 
 
 class CstNode:
@@ -80,6 +88,45 @@ class Document(CstNode):
     def to_text(self) -> str:
         lines: list[str] = []
 
-        # TODO: convert document items into text file
+        def serialize_assignment(node: Assignment, indent_by: int = 0):
+            indent = " " * indent_by
+            lines.append(f"{indent}{node.key} {CHAR_EQUALS} {node.value}")
+
+        def serialize_comment(node: Comment, indent_by: int = 0):
+            indent = " " * indent_by
+            lines.append(f"{indent}{CHAR_COMMENT} {node.text}")
+
+        def serialize_blank_line():
+            lines.append("")
+
+        def serialize_section(node: Section, indent_by: int = 0):
+            indent = " " * indent_by
+
+            header = f"{CHAR_SECTION_SYMBOL}{node.name}"
+            if node.inline_lbrace:
+                header += f" {CHAR_LBRACE}"
+
+            lines.append(f"{indent}{header}")
+
+            if not node.inline_lbrace:
+                lines.append(f"{indent}{CHAR_LBRACE}")
+
+            serialize_items(node.body_items, indent_by=(indent_by + DEFAULT_INDENT))
+
+            lines.append(f"{indent}{CHAR_RBRACE}")
+
+        def serialize_items(items: T_CstItemsList, indent_by: int = 0):
+            for item in items:
+                match item:
+                    case Assignment():
+                        serialize_assignment(item, indent_by=indent_by)
+                    case Comment():
+                        serialize_comment(item, indent_by=indent_by)
+                    case BlankLine():
+                        serialize_blank_line()
+                    case Section():
+                        serialize_section(item, indent_by=indent_by)
+
+        serialize_items(self.items)
 
         return "\n".join(lines)
