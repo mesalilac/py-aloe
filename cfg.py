@@ -70,3 +70,6 @@ class Cfg:
 
     def remove(self, path: str) -> None:
         raise NotImplementedError
+
+    def clear(self, path: str) -> None:
+        self.document.items.clear()
