@@ -6,8 +6,9 @@ from parser import Parser, ParserSyntaxError
 
 
 class Cfg:
-    def __init__(self, document: Document):
-        self.document: Document = document
+    def __init__(self, document: Document, filename: str | None = None):
+        self.filename = filename
+        self.document = document
 
     @classmethod
     def from_text(cls, text: str):
@@ -17,6 +18,17 @@ class Cfg:
 
     def to_text(self) -> str:
         return self.document.to_text()
+
+    def save(self, filename: str | None = None) -> None:
+        path = filename if filename else self.filename
+
+        if path is None:
+            raise ValueError(
+                f"No filename provided: pass a filename or set self.filename by calling Cfg.from_file()"
+            )
+
+        with open(path, "w") as f:
+            f.write(self.document.to_text())
 
     def get(self, path: str) -> str | None:
         raise NotImplementedError
