@@ -16,7 +16,7 @@ class Cfg:
         return cls(document)
 
     def to_text(self) -> str:
-        raise NotImplementedError
+        return self.document.to_text()
 
     def get(self, path: str) -> str | None:
         raise NotImplementedError
