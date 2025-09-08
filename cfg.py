@@ -26,9 +26,6 @@ class Cfg:
 
             return cls(document)
 
-    def to_text(self) -> str:
-        return self.document.to_text()
-
     def save(self, filename: str | None = None) -> None:
         path = filename if filename else self.filename
 

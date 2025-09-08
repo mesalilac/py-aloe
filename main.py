@@ -34,7 +34,7 @@ def main():
 
         pprint(cfg.document.items)
 
-        pprint(cfg.to_text())
+        pprint(cfg.document.to_text())
     except ParserSyntaxError as err:
         err.print()
 
