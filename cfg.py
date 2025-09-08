@@ -66,7 +66,36 @@ class Cfg:
                             current_scope = node.body_items
 
     def set(self, path: str, value: str) -> None:
-        raise NotImplementedError
+        path_parts = path.split(".")
+
+        current_scope = self.document.items
+
+        for index, part in enumerate(path_parts):
+            is_last_part = index == len(path_parts) - 1
+            part_found_in_scope: bool = False
+
+            for node in current_scope:
+                match node:
+                    case Assignment():
+                        if is_last_part and node.key == part:
+                            part_found_in_scope = True
+                            node.value = value
+                            return None
+                    case Section():
+                        if node.name == part:
+                            part_found_in_scope = True
+                            current_scope = node.body_items
+
+            if not part_found_in_scope:
+                if is_last_part:
+                    assignment = Assignment(key=part, value=value)
+                    current_scope.append(assignment)
+                else:
+                    section = Section(name=part, body_items=[])
+                    current_scope.append(section)
+
+                    if isinstance(current_scope[-1], Section):
+                        current_scope = current_scope[-1].body_items
 
     def remove(self, path: str) -> None:
         path_parts = path.split(".")
