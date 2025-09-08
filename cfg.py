@@ -16,6 +16,16 @@ class Cfg:
         document = Parser().parse(text, tokens)
         return cls(document)
 
+    @classmethod
+    def from_file(cls, filename: str):
+        with open(filename, "r") as f:
+            text = f.read()
+
+            tokens = Lexer(text).tokenize()
+            document = Parser().parse(text, tokens)
+
+            return cls(document)
+
     def to_text(self) -> str:
         return self.document.to_text()
 
