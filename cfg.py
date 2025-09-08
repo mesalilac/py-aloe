@@ -60,8 +60,6 @@ class Cfg:
                         if is_last_part and node.key == part:
                             return node.value
                     case Section():
-                        if is_last_part:
-                            return None  # cannot return a section as a value
                         if node.name == part:
                             current_scope = node.body_items
 
