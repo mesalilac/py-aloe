@@ -1,6 +1,6 @@
 """high-level Cfg class"""
 
-from cst import Document
+from cst import Document, Assignment, Section
 from lexer import Lexer
 from parser import Parser, ParserSyntaxError
 
@@ -47,7 +47,23 @@ class Cfg:
             `get("network.port")`
             `network` is the section, `port` is the key
         """
-        raise NotImplementedError
+        path_parts = path.split(".")
+
+        current_scope = self.document.items
+
+        for index, part in enumerate(path_parts):
+            for node in current_scope:
+                is_last_part = index == len(path_parts) - 1
+
+                match node:
+                    case Assignment():
+                        if is_last_part and node.key == part:
+                            return node.value
+                    case Section():
+                        if is_last_part:
+                            return None  # cannot return a section as a value
+                        if node.name == part:
+                            current_scope = node.body_items
 
     def set(self, path: str, value: str) -> None:
         raise NotImplementedError
