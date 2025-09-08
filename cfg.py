@@ -38,6 +38,15 @@ class Cfg:
             f.write(self.document.to_text())
 
     def get(self, path: str) -> str | None:
+        """
+        Retrieve the value associated with a key in the Document
+
+        The key can be nested within sections using dot notation
+
+        Example:
+            `get("network.port")`
+            `network` is the section, `port` is the key
+        """
         raise NotImplementedError
 
     def set(self, path: str, value: str) -> None:
