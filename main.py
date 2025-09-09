@@ -13,10 +13,10 @@ max_retries = 5
 enable_feature = "yes"
 # UI theme, e.g [dark, light]
 theme = "dark"
-$network
+@network
 {
     port = 8080
-    $local
+    @local
     {
         port_num = 8300
     }
