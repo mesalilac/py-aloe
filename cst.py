@@ -63,7 +63,7 @@ class Section(CstNode):
 
     def __str__(self):
         inlined = " inline" if self.inline_lbrace else ""
-        body = "".join(map(str, self.body_items))
+        body = ", ".join(map(str, self.body_items))
         return self.name + inlined + "{" + body + "}"
 
     def __repr__(self):
