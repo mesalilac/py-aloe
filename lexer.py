@@ -58,8 +58,8 @@ def lex(text: str) -> list[Token]:
             insert_newline()
             continue
 
-        if line.startswith(symbols.SECTION_SYMBOL):
-            section_name = line.removeprefix(symbols.SECTION_SYMBOL).strip()
+        if line.startswith(symbols.SECTION_PREFIX):
+            section_name = line.removeprefix(symbols.SECTION_PREFIX).strip()
 
             if section_name.endswith(symbols.LBRACE):
                 section_name = section_name.removesuffix(symbols.LBRACE).strip()
@@ -68,7 +68,7 @@ def lex(text: str) -> list[Token]:
             else:
                 push_token(TokenType.SECTION_NAME, section_name)
 
-            state.column += len(symbols.SECTION_SYMBOL) + len(section_name)
+            state.column += len(symbols.SECTION_PREFIX) + len(section_name)
             insert_newline()
             continue
 

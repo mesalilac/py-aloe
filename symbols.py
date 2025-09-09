@@ -2,6 +2,6 @@
 
 COMMENT = "#"
 EQUALS = "="
-SECTION_SYMBOL = "$"
+SECTION_PREFIX = "$"
 LBRACE = "{"
 RBRACE = "}"

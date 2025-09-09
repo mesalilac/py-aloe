@@ -97,7 +97,7 @@ class Document(CstNode):
         def serialize_section(node: Section, indent_by: int = 0):
             indent = " " * indent_by
 
-            header = f"{symbols.SECTION_SYMBOL}{node.name}"
+            header = f"{symbols.SECTION_PREFIX}{node.name}"
             if node.inline_lbrace:
                 header += f" {symbols.LBRACE}"
 
