@@ -6,6 +6,28 @@ from parser import parse, ParserSyntaxError
 
 
 class Cfg:
+    """High-level class for parsing
+
+    .. note::
+        If the parsing fails a `ParserSyntaxError` error is raised
+
+    Example:
+
+    ```python
+    cfg = Cfg.from_file("example.cfg")
+
+    print(cfg.get("network.port"))
+    #     ^ 8080
+
+    cfg.set("network.port", "3000")
+
+    print(cfg.get("network.port"))
+    #     ^ 3000
+
+    cfg.save("example.cfg")
+    ```
+    """
+
     def __init__(self, document: Document, filename: str | None = None):
         self.filename = filename
         self.document = document
