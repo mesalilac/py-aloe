@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from tokens import TokenType, Token
+from lexer import TokenType, Token
 from cst import (
     Comment,
     Document,

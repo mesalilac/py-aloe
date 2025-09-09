@@ -1,13 +1,26 @@
+import symbols
 from dataclasses import dataclass, field
-from tokens import (
-    TokenType,
-    Token,
-    CHAR_COMMENT,
-    CHAR_EQUALS,
-    CHAR_SECTION_SYMBOL,
-    CHAR_RBRACE,
-    CHAR_LBRACE,
-)
+from enum import Enum, auto
+
+
+class TokenType(Enum):
+    KEY = auto()
+    VALUE = auto()
+    EQUALS = auto()  # =
+    COMMENT = auto()
+    SECTION_NAME = auto()
+    LBRACE = auto()  # {
+    RBRACE = auto()  # }
+    NEWLINE = auto()  # \n
+    BLANK_LINE = auto()
+    EOF = auto()
+
+
+@dataclass
+class Token:
+    type: TokenType
+    value: str | None
+    pos: tuple[int, int]
 
 
 @dataclass
@@ -39,40 +52,40 @@ def lex(text: str) -> list[Token]:
             state.line += 1
             continue
 
-        if line.startswith(CHAR_COMMENT):
-            comment = line.removeprefix(CHAR_COMMENT).strip()
+        if line.startswith(symbols.COMMENT):
+            comment = line.removeprefix(symbols.COMMENT).strip()
             push_token(TokenType.COMMENT, comment)
             insert_newline()
             continue
 
-        if line.startswith(CHAR_SECTION_SYMBOL):
-            section_name = line.removeprefix(CHAR_SECTION_SYMBOL).strip()
+        if line.startswith(symbols.SECTION_SYMBOL):
+            section_name = line.removeprefix(symbols.SECTION_SYMBOL).strip()
 
-            if section_name.endswith(CHAR_LBRACE):
-                section_name = section_name.removesuffix(CHAR_LBRACE).strip()
+            if section_name.endswith(symbols.LBRACE):
+                section_name = section_name.removesuffix(symbols.LBRACE).strip()
                 push_token(TokenType.SECTION_NAME, section_name)
                 push_token(TokenType.LBRACE)
             else:
                 push_token(TokenType.SECTION_NAME, section_name)
 
-            state.column += len(CHAR_SECTION_SYMBOL) + len(section_name)
+            state.column += len(symbols.SECTION_SYMBOL) + len(section_name)
             insert_newline()
             continue
 
-        if line == CHAR_RBRACE:
+        if line == symbols.RBRACE:
             push_token(TokenType.RBRACE)
-            state.column += len(CHAR_RBRACE)
+            state.column += len(symbols.RBRACE)
             insert_newline()
             continue
 
-        if line == CHAR_LBRACE:
+        if line == symbols.LBRACE:
             push_token(TokenType.LBRACE)
-            state.column += len(CHAR_LBRACE)
+            state.column += len(symbols.LBRACE)
             insert_newline()
             continue
 
-        if CHAR_EQUALS in line:
-            key, value = line.split(CHAR_EQUALS)
+        if symbols.EQUALS in line:
+            key, value = line.split(symbols.EQUALS)
 
             key = key.strip()
             value = value.strip()

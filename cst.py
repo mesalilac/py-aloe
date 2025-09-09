@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 from typing import TypeAlias
-from tokens import (
-    CHAR_SECTION_SYMBOL,
-    CHAR_LBRACE,
-    CHAR_RBRACE,
-    CHAR_COMMENT,
-    CHAR_EQUALS,
-)
+import symbols
+
 
 DEFAULT_INDENT = 4
 
@@ -90,11 +85,11 @@ class Document(CstNode):
 
         def serialize_assignment(node: Assignment, indent_by: int = 0):
             indent = " " * indent_by
-            lines.append(f"{indent}{node.key} {CHAR_EQUALS} {node.value}")
+            lines.append(f"{indent}{node.key} {symbols.EQUALS} {node.value}")
 
         def serialize_comment(node: Comment, indent_by: int = 0):
             indent = " " * indent_by
-            lines.append(f"{indent}{CHAR_COMMENT} {node.text}")
+            lines.append(f"{indent}{symbols.COMMENT} {node.text}")
 
         def serialize_blank_line():
             lines.append("")
@@ -102,18 +97,18 @@ class Document(CstNode):
         def serialize_section(node: Section, indent_by: int = 0):
             indent = " " * indent_by
 
-            header = f"{CHAR_SECTION_SYMBOL}{node.name}"
+            header = f"{symbols.SECTION_SYMBOL}{node.name}"
             if node.inline_lbrace:
-                header += f" {CHAR_LBRACE}"
+                header += f" {symbols.LBRACE}"
 
             lines.append(f"{indent}{header}")
 
             if not node.inline_lbrace:
-                lines.append(f"{indent}{CHAR_LBRACE}")
+                lines.append(f"{indent}{symbols.LBRACE}")
 
             serialize_items(node.body_items, indent_by=(indent_by + DEFAULT_INDENT))
 
-            lines.append(f"{indent}{CHAR_RBRACE}")
+            lines.append(f"{indent}{symbols.RBRACE}")
 
         def serialize_items(items: T_CstItemsList, indent_by: int = 0):
             for item in items:
