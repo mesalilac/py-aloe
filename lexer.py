@@ -98,11 +98,12 @@ def lex(text: str) -> list[Token]:
             ):
                 value = value[1:-1]
 
-            state.column += len(key)
-            push_token(TokenType.KEY, key)
-            push_token(TokenType.EQUALS)
-            state.column += len(value)
-            push_token(TokenType.VALUE, value)
+            if key and value:
+                state.column += len(key)
+                push_token(TokenType.KEY, key)
+                push_token(TokenType.EQUALS)
+                state.column += len(value)
+                push_token(TokenType.VALUE, value)
 
         insert_newline()
 
