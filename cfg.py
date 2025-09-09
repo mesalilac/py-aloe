@@ -1,8 +1,8 @@
 """high-level Cfg class"""
 
 from cst import Document, Assignment, Section
-from lexer import Lexer
-from parser import Parser, ParserSyntaxError
+from lexer import lex
+from parser import parse, ParserSyntaxError
 
 
 class Cfg:
@@ -12,8 +12,8 @@ class Cfg:
 
     @classmethod
     def from_text(cls, text: str):
-        tokens = Lexer(text).tokenize()
-        document = Parser().parse(text, tokens)
+        tokens = lex(text)
+        document = parse(text, tokens)
         return cls(document)
 
     @classmethod
@@ -21,8 +21,8 @@ class Cfg:
         with open(filename, "r") as f:
             text = f.read()
 
-            tokens = Lexer(text).tokenize()
-            document = Parser().parse(text, tokens)
+            tokens = lex(text)
+            document = parse(text, tokens)
 
             return cls(document)
 

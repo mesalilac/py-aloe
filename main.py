@@ -1,6 +1,6 @@
 from cfg import Cfg
-from lexer import Lexer
-from parser import Parser, ParserSyntaxError
+from lexer import lex
+from parser import parse, ParserSyntaxError
 from pprint import pprint
 
 
@@ -25,7 +25,7 @@ $network
 
 
 def main():
-    tokens = Lexer(TEST_TEXT).tokenize()
+    tokens = lex(TEST_TEXT)
 
     pprint(tokens)
 
