@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 from typing import TypeAlias
-import symbols
-
+import py_cfg.symbols as symbols
 
 DEFAULT_INDENT = 4
 

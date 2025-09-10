@@ -1,6 +1,6 @@
-from cfg import Cfg
-from lexer import lex
-from parser import parse, ParserSyntaxError
+from py_cfg.cfg import Cfg
+from py_cfg.lexer import lex
+from py_cfg.parser import parse, ParserSyntaxError
 from pprint import pprint
 
 
@@ -11,7 +11,6 @@ timeout = 30
 pi = 3.14159
 max_retries = 5
 enable_feature = true
-test = "true"
 # UI theme, e.g [dark, light]
 theme = "dark"
 @network

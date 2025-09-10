@@ -1,4 +1,4 @@
-import symbols
+import py_cfg.symbols as symbols
 from dataclasses import dataclass, field
 from enum import Enum, auto
 

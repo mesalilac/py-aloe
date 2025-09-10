@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from lexer import TokenType, Token
-from cst import (
+from py_cfg.lexer import TokenType, Token
+from py_cfg.cst import (
     Comment,
     Document,
     Section,

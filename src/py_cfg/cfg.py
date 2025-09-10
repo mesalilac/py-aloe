@@ -1,8 +1,8 @@
 """high-level Cfg class"""
 
-from cst import Document, Assignment, Section, T_ASSIGNMENT_VALUE
-from lexer import lex
-from parser import parse, ParserSyntaxError
+from .cst import Document, Assignment, Section, T_ASSIGNMENT_VALUE
+from .lexer import lex
+from .parser import parse, ParserSyntaxError
 
 
 class Cfg:
