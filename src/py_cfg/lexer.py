@@ -110,7 +110,7 @@ def lex(text: str) -> list[Token]:
                 value = value[1:-1]
                 str_literal = True
 
-            if key and value:
+            if key:
                 state.column += len(key)
                 push_token(TokenType.KEY, key)
                 push_token(TokenType.EQUALS)
