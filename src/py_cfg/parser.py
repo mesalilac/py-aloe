@@ -107,14 +107,13 @@ def parse(text: str, tokens: list[Token]) -> Document:
                         value = True
                     elif value_token.value.lower() == "false":
                         value = False
-
-                if value_token.value.isdigit():
-                    value = int(value_token.value)
-                elif (
-                    "." in value_token.value
-                    and value_token.value.replace(".", "", 1).isdigit()
-                ):
-                    value = float(value_token.value)
+                    elif value_token.value.isdigit():
+                        value = int(value_token.value)
+                    elif (
+                        "." in value_token.value
+                        and value_token.value.replace(".", "", 1).isdigit()
+                    ):
+                        value = float(value_token.value)
 
                 assignment = Assignment(token.value, value)
                 cst_items.append(assignment)
