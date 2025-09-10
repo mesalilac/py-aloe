@@ -10,7 +10,7 @@ password = "secret123"
 timeout = 30
 pi = 3.14159
 max_retries = 5
-enable_feature = "yes"
+enable_feature = true
 # UI theme, e.g [dark, light]
 theme = "dark"
 @network
