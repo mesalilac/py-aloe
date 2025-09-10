@@ -1,6 +1,6 @@
 """high-level Cfg class"""
 
-from cst import Document, Assignment, Section
+from cst import Document, Assignment, Section, T_ASSIGNMENT_VALUE
 from lexer import lex
 from parser import parse, ParserSyntaxError
 
@@ -59,7 +59,7 @@ class Cfg:
         with open(path, "w") as f:
             f.write(self.document.to_text())
 
-    def get(self, path: str) -> str | None:
+    def get(self, path: str) -> T_ASSIGNMENT_VALUE | None:
         """
         Retrieve the value associated with a key in the Document
 

@@ -11,6 +11,7 @@ timeout = 30
 pi = 3.14159
 max_retries = 5
 enable_feature = true
+test = "true"
 # UI theme, e.g [dark, light]
 theme = "dark"
 @network

@@ -21,6 +21,7 @@ class Token:
     type: TokenType
     value: str | None
     pos: tuple[int, int]
+    string_literal: bool = False
 
 
 @dataclass
@@ -36,8 +37,17 @@ def lex(text: str) -> list[Token]:
     tokens: list[Token] = []
     state = State()
 
-    def push_token(type: TokenType, value: str | None = None):
-        tokens.append(Token(type=type, value=value, pos=state.into_tuple()))
+    def push_token(
+        type: TokenType, value: str | None = None, string_literal: bool = False
+    ):
+        tokens.append(
+            Token(
+                type=type,
+                value=value,
+                pos=state.into_tuple(),
+                string_literal=string_literal,
+            )
+        )
 
     def insert_newline():
         push_token(TokenType.NEWLINE)
@@ -89,6 +99,7 @@ def lex(text: str) -> list[Token]:
 
             key = key.strip()
             value = value.strip()
+            string_literal = False
 
             if (
                 value.startswith('"')
@@ -97,13 +108,14 @@ def lex(text: str) -> list[Token]:
                 and value.endswith("'")
             ):
                 value = value[1:-1]
+                string_literal = True
 
             if key and value:
                 state.column += len(key)
                 push_token(TokenType.KEY, key)
                 push_token(TokenType.EQUALS)
                 state.column += len(value)
-                push_token(TokenType.VALUE, value)
+                push_token(TokenType.VALUE, value, string_literal=string_literal)
 
         insert_newline()
 

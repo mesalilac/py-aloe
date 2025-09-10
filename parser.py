@@ -5,6 +5,7 @@ from cst import (
     Document,
     Section,
     T_CstItemsList,
+    T_ASSIGNMENT_VALUE,
     Assignment,
     Comment,
     BlankLine,
@@ -99,7 +100,23 @@ def parse(text: str, tokens: list[Token]) -> Document:
                 )
 
             if token.value and value_token.value:
-                assignment = Assignment(token.value, value_token.value)
+                value: T_ASSIGNMENT_VALUE = value_token.value
+
+                if not value_token.string_literal:
+                    if value_token.value.lower() == "true":
+                        value = True
+                    elif value_token.value.lower() == "false":
+                        value = False
+
+                if value_token.value.isdigit():
+                    value = int(value_token.value)
+                elif (
+                    "." in value_token.value
+                    and value_token.value.replace(".", "", 1).isdigit()
+                ):
+                    value = float(value_token.value)
+
+                assignment = Assignment(token.value, value)
                 cst_items.append(assignment)
 
         if token.type == TokenType.COMMENT:

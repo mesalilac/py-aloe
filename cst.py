@@ -7,6 +7,8 @@ import symbols
 
 DEFAULT_INDENT = 4
 
+T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool
+
 
 class CstNode:
     def __str__(self) -> str:
@@ -25,7 +27,7 @@ class Comment(CstNode):
 
 
 class Assignment(CstNode):
-    def __init__(self, key: str, value: str):
+    def __init__(self, key: str, value: T_ASSIGNMENT_VALUE):
         self.key = key
         self.value = value
 
@@ -84,7 +86,14 @@ class Document(CstNode):
 
         def serialize_assignment(node: Assignment, indent_by: int = 0):
             indent = " " * indent_by
-            lines.append(f"{indent}{node.key} {symbols.EQUALS} {node.value}")
+            value: str = str(node.value)
+
+            if isinstance(node.value, str):
+                value = '"' + value + '"'
+            elif isinstance(node.value, bool):
+                value = value.lower()
+
+            lines.append(f"{indent}{node.key} {symbols.EQUALS} {value}")
 
         def serialize_comment(node: Comment, indent_by: int = 0):
             indent = " " * indent_by
