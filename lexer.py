@@ -21,7 +21,7 @@ class Token:
     type: TokenType
     value: str | None
     pos: tuple[int, int]
-    string_literal: bool = False
+    str_literal: bool = False
 
 
 @dataclass
@@ -45,7 +45,7 @@ def lex(text: str) -> list[Token]:
                 type=type,
                 value=value,
                 pos=state.into_tuple(),
-                string_literal=string_literal,
+                str_literal=string_literal,
             )
         )
 

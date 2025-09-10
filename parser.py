@@ -102,7 +102,7 @@ def parse(text: str, tokens: list[Token]) -> Document:
             if token.value and value_token.value:
                 value: T_ASSIGNMENT_VALUE = value_token.value
 
-                if not value_token.string_literal:
+                if not value_token.str_literal:
                     if value_token.value.lower() == "true":
                         value = True
                     elif value_token.value.lower() == "false":
