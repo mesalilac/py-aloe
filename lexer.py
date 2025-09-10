@@ -38,14 +38,14 @@ def lex(text: str) -> list[Token]:
     state = State()
 
     def push_token(
-        type: TokenType, value: str | None = None, string_literal: bool = False
+        type: TokenType, value: str | None = None, str_literal: bool = False
     ):
         tokens.append(
             Token(
                 type=type,
                 value=value,
                 pos=state.into_tuple(),
-                str_literal=string_literal,
+                str_literal=str_literal,
             )
         )
 
@@ -99,7 +99,7 @@ def lex(text: str) -> list[Token]:
 
             key = key.strip()
             value = value.strip()
-            string_literal = False
+            str_literal = False
 
             if (
                 value.startswith('"')
@@ -108,14 +108,14 @@ def lex(text: str) -> list[Token]:
                 and value.endswith("'")
             ):
                 value = value[1:-1]
-                string_literal = True
+                str_literal = True
 
             if key and value:
                 state.column += len(key)
                 push_token(TokenType.KEY, key)
                 push_token(TokenType.EQUALS)
                 state.column += len(value)
-                push_token(TokenType.VALUE, value, string_literal=string_literal)
+                push_token(TokenType.VALUE, value, str_literal=str_literal)
 
         insert_newline()
 
