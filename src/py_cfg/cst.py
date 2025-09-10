@@ -13,16 +13,19 @@ class CstNode:
     def __str__(self) -> str:
         raise NotImplementedError
 
+    def __repr__(self) -> str:
+        raise NotImplementedError
+
 
 class Comment(CstNode):
     def __init__(self, text):
         self.text = text
 
     def __str__(self):
-        return self.text
+        return "Comment" + "(" + self.text + ")"
 
     def __repr__(self):
-        return "Comment" + "(" + self.__str__() + ")"
+        return self.__str__()
 
 
 class Assignment(CstNode):
@@ -34,10 +37,10 @@ class Assignment(CstNode):
         key = self.key
         value = self.value
 
-        return f"{key=}, {value=}"
+        return "Assignment" + "(" + f"{key=}, {value=}" + ")"
 
     def __repr__(self):
-        return "Assignment" + "(" + self.__str__() + ")"
+        return self.__str__()
 
 
 class BlankLine(CstNode):
@@ -45,10 +48,10 @@ class BlankLine(CstNode):
         pass
 
     def __str__(self):
-        return ""
+        return "BlankLine" + "(" + ")"
 
     def __repr__(self):
-        return "BlankLine" + "(" + self.__str__() + ")"
+        return self.__str__()
 
 
 class Section(CstNode):
@@ -64,10 +67,10 @@ class Section(CstNode):
 
     def __str__(self):
         body = ", ".join(map(str, self.body_items))
-        return self.name + " " + "{" + body + "}"
+        return "Section" + "(" + self.name + " " + "{" + body + "}" + ")"
 
     def __repr__(self):
-        return "Section" + "(" + self.__str__() + ")"
+        return self.__str__()
 
 
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
