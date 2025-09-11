@@ -107,6 +107,9 @@ class Document(CstNode):
     def __str__(self):
         return "".join(map(str, self.items))
 
+    def __repr__(self):
+        return self.__str__()
+
     def __eq__(self, other):
         return isinstance(other, Document) and self.items == other.items
 
