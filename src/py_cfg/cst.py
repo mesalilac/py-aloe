@@ -16,6 +16,9 @@ class CstNode:
     def __repr__(self) -> str:
         raise NotImplementedError
 
+    def __eq__(self) -> bool:
+        raise NotImplementedError
+
 
 class Comment(CstNode):
     def __init__(self, text):
@@ -26,6 +29,9 @@ class Comment(CstNode):
 
     def __repr__(self):
         return self.__str__()
+
+    def __eq__(self, other):
+        return isinstance(other, Comment) and self.text == other.text
 
 
 class Assignment(CstNode):
@@ -42,6 +48,13 @@ class Assignment(CstNode):
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, Assignment)
+            and self.key == other.key
+            and self.value == other.value
+        )
+
 
 class BlankLine(CstNode):
     def __init__(self):
@@ -52,6 +65,9 @@ class BlankLine(CstNode):
 
     def __repr__(self):
         return self.__str__()
+
+    def __eq__(self, other):
+        return isinstance(other, BlankLine)
 
 
 class Section(CstNode):
@@ -72,6 +88,14 @@ class Section(CstNode):
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, Section)
+            and self.name == other.name
+            and self.inline_lbrace == other.inline_lbrace
+            and self.body_items == other.body_items
+        )
+
 
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
 
@@ -82,6 +106,9 @@ class Document(CstNode):
 
     def __str__(self):
         return "".join(map(str, self.items))
+
+    def __eq__(self, other):
+        return isinstance(other, Document) and self.items == other.items
 
     def to_text(self) -> str:
         lines: list[str] = []
