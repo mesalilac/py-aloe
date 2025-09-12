@@ -33,6 +33,11 @@ class ParserSyntaxError(Exception):
             self.line_after = lines[line_index + 1]
 
     def __str__(self):
+        line, column = self.position
+
+        return f"{self.source}:{line}:{column}: {self.message}"
+
+    def __repr__(self):
         return f"ParserSyntaxError(message: `{self.message}`, position: `{self.position}`,  source: `{self.source}`, line: `{self.line}`, line_before: `{self.line_before}`, line_after: `{self.line_after}`)"
 
     def print(self):
