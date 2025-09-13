@@ -60,10 +60,9 @@ class Assignment(CstNode):
 
 @dataclass
 class Value:
-    value: T_ASSIGNMENT_VALUE
+    value: T_ASSIGNMENT_VALUE | Array
 
 
-# TODO: make Array nested
 @dataclass
 class Array(CstNode):
     _items: list[Value | Comment] = field(default_factory=list)
