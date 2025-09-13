@@ -8,8 +8,6 @@ import py_cfg.symbols as symbols
 
 DEFAULT_INDENT = 4
 
-T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool
-
 
 class CstNode:
     def __str__(self) -> str:
@@ -20,6 +18,44 @@ class CstNode:
 
     def __eq__(self) -> bool:
         raise NotImplementedError
+
+
+@dataclass
+class Value:
+    value: T_ASSIGNMENT_VALUE | Array
+
+
+@dataclass
+class Array(CstNode):
+    _items: list[Value | Comment] = field(default_factory=list)
+
+    def __iter__(self):
+        return (i.value for i in self._items if isinstance(i, Value))
+
+    def __str__(self):
+        body = ", ".join(map(str, self._items))
+        return "Array" + "[" + body + "]"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return isinstance(other, Array) and self._items == other._items
+
+    @property
+    def values(self) -> list:
+        return [i.value for i in self._items if isinstance(i, Value)]
+
+    def append(self, value: T_ASSIGNMENT_VALUE) -> None:
+        self._items.append(Value(value))
+
+    def append_comment(self, text: str) -> None:
+        self._items.append(Comment(text))
+
+    # TODO: add more methods
+
+
+T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool | Array
 
 
 class Comment(CstNode):
@@ -56,41 +92,6 @@ class Assignment(CstNode):
             and self.key == other.key
             and self.value == other.value
         )
-
-
-@dataclass
-class Value:
-    value: T_ASSIGNMENT_VALUE | Array
-
-
-@dataclass
-class Array(CstNode):
-    _items: list[Value | Comment] = field(default_factory=list)
-
-    def __iter__(self):
-        return (i.value for i in self._items if isinstance(i, Value))
-
-    def __str__(self):
-        body = ", ".join(map(str, self._items))
-        return "Array" + "[" + body + "]"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, Array) and self._items == other._items
-
-    @property
-    def values(self) -> list:
-        return [i.value for i in self._items if isinstance(i, Value)]
-
-    def append(self, value: T_ASSIGNMENT_VALUE) -> None:
-        self._items.append(Value(value))
-
-    def append_comment(self, text: str) -> None:
-        self._items.append(Comment(text))
-
-    # TODO: add more methods
 
 
 class BlankLine(CstNode):
