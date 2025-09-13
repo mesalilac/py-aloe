@@ -4,11 +4,12 @@ from enum import Enum, auto
 
 
 class TokenType(Enum):
-    KEY = auto()
-    VALUE = auto()
+    IDENTIFIER = auto()
+    NUMBER = auto()
+    STRING = auto()
+    BOOLEAN = auto()
     EQUALS = auto()  # =
     COMMENT = auto()
-    SECTION_NAME = auto()
     LBRACE = auto()  # {
     RBRACE = auto()  # }
     NEWLINE = auto()  # \n
