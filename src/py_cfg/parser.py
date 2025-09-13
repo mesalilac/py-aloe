@@ -1,15 +1,6 @@
 from dataclasses import dataclass
 from py_cfg.lexer import TokenType, Token
-from py_cfg.cst import (
-    Comment,
-    Document,
-    Section,
-    T_CstItemsList,
-    T_ASSIGNMENT_VALUE,
-    Assignment,
-    Comment,
-    BlankLine,
-)
+from py_cfg.cst import *
 
 
 class ParserSyntaxError(Exception):
@@ -71,117 +62,20 @@ class ParserSyntaxError(Exception):
 def parse(text: str, tokens: list[Token]) -> Document:
     items: T_CstItemsList = []
 
-    index = 0
+    idx = 0
     sections: list[Section] = []
 
-    def peek(offset) -> Token | None:
-        target = index + offset
+    def peek(offset: int = 1) -> Token | None:
+        target = idx + offset
 
-        if target < 0 or target >= len(tokens):
+        if not tokens or target < 0 or target >= len(tokens):
             return None
 
         return tokens[target]
 
-    while index < len(tokens) and tokens[index] != TokenType.EOF:
-        cst_items = items if len(sections) == 0 else sections[-1].body_items
-        token = tokens[index]
+    while idx < len(tokens) and tokens[idx] != TokenType.EOF:
+        token = tokens[idx]
 
-        if token.type == TokenType.KEY:
-            equals_token = peek(1)
-            value_token = peek(2)
-
-            if not equals_token or equals_token.type != TokenType.EQUALS:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing '=' after key",
-                    position=token.pos,
-                )
-
-            if not value_token or value_token.type != TokenType.VALUE:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing VALUE after '='",
-                    position=token.pos,
-                )
-
-            if token.value and value_token.value:
-                value: T_ASSIGNMENT_VALUE = value_token.value
-
-                if not value_token.str_literal:
-                    if value_token.value.lower() == "true":
-                        value = True
-                    elif value_token.value.lower() == "false":
-                        value = False
-                    elif value_token.value.isdigit():
-                        value = int(value_token.value)
-                    elif (
-                        "." in value_token.value
-                        and value_token.value.replace(".", "", 1).isdigit()
-                    ):
-                        value = float(value_token.value)
-
-                assignment = Assignment(token.value, value)
-                cst_items.append(assignment)
-
-        if token.type == TokenType.COMMENT:
-            comment = Comment(token.value or "")
-
-            cst_items.append(comment)
-
-        if token.type == TokenType.BLANK_LINE:
-            blank_line = BlankLine()
-
-            cst_items.append(blank_line)
-
-        if token.type == TokenType.SECTION_NAME and token.value:
-            tok1 = peek(1)
-            tok2 = peek(2)
-
-            if not (
-                (tok1 and tok1.type == TokenType.LBRACE)
-                or (
-                    tok1
-                    and tok1.type == TokenType.NEWLINE
-                    and tok2
-                    and tok2.type == TokenType.LBRACE
-                )
-            ):
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing '{' after section name",
-                    position=token.pos,
-                )
-
-            section = Section(token.value, [])
-
-            if tok1 and tok1.type == TokenType.LBRACE:
-                section.inline_lbrace = True
-
-            sections.append(section)
-
-        if token.type == TokenType.LBRACE:
-            if not sections:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Unexpected '{' with no open sections",
-                    position=token.pos,
-                )
-
-        if token.type == TokenType.RBRACE:
-            if not sections:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Unexpected '}' with no open sections",
-                    position=token.pos,
-                )
-
-            section = sections.pop()
-
-            if sections:
-                sections[-1].body_items.append(section)
-            else:
-                items.append(section)
-
-        index += 1
+        idx += 1
 
     return Document(items)

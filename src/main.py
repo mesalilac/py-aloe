@@ -26,6 +26,10 @@ version = "1.0.0"
 
     pprint(tokens)
 
+    document = parse(tokens=tokens, text=text)
+
+    pprint(document.items)
+
     # try:
     #     cfg = Cfg.from_file("example.cfg")
 
