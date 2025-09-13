@@ -10,6 +10,7 @@ class TokenType(Enum):
     BOOLEAN = auto()
     EQUALS = auto()  # =
     COMMENT = auto()
+    SECTION_SYMBOL = auto()
     LBRACE = auto()  # {
     RBRACE = auto()  # }
     LBRACKET = auto()  # [
