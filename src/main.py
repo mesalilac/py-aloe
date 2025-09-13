@@ -5,14 +5,35 @@ from pprint import pprint
 
 
 def main():
-    try:
-        cfg = Cfg.from_file("example.cfg")
+    text = """# global settings
 
-        pprint(cfg.document.items)
+app_name = "myapp"
+version = "1.0.0"
 
-        pprint(cfg.document.to_text())
-    except ParserSyntaxError as err:
-        err.print()
+@database {
+    host = "localhost"
+    port = 5432
+    user = "admin"
+    password = "secret"
+
+    @pool {
+        max_connections = 20
+        timeout = 30
+    }
+}"""
+
+    tokens = lex(text)
+
+    pprint(tokens)
+
+    # try:
+    #     cfg = Cfg.from_file("example.cfg")
+
+    #     pprint(cfg.document.items)
+
+    #     pprint(cfg.document.to_text())
+    # except ParserSyntaxError as err:
+    #     err.print()
 
 
 if __name__ == "__main__":
