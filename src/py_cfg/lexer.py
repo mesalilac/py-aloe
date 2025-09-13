@@ -12,6 +12,9 @@ class TokenType(Enum):
     COMMENT = auto()
     LBRACE = auto()  # {
     RBRACE = auto()  # }
+    LBRACKET = auto()  # [
+    RBRACKET = auto()  # ]
+    COMMA = auto()
     NEWLINE = auto()  # \n
     BLANK_LINE = auto()
     EOF = auto()
