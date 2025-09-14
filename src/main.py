@@ -9,6 +9,15 @@ def main():
 
 app_name = "myapp"
 version = "1.0.0"
+dependencies = [
+    [1, 2, 3, [4, 5, 6]],
+    "pk1",
+    "pk2",
+    # "pk3",
+    "pk4",
+    130,
+    3.14 
+]
 
 @database {
     host = "localhost"
@@ -26,9 +35,12 @@ version = "1.0.0"
 
     pprint(tokens)
 
-    document = parse(tokens=tokens, text=text)
+    try:
+        document = parse(tokens=tokens, text=text)
 
-    pprint(document.items)
+        pprint(document.items)
+    except ParserSyntaxError as err:
+        err.print()
 
     # try:
     #     cfg = Cfg.from_file("example.cfg")
