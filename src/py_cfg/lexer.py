@@ -77,6 +77,26 @@ def lex(text: str) -> list[Token]:
         return ch
 
     def push_token(type: TokenType, value: T_TOKEN_VALUE = None) -> None:
+        value = value
+
+        match type:
+            case TokenType.EQUALS:
+                value = symbols.EQUALS
+            case TokenType.SECTION_PREFIX:
+                value = symbols.SECTION_PREFIX
+            case TokenType.LBRACE:
+                value = symbols.LBRACE
+            case TokenType.RBRACE:
+                value = symbols.RBRACE
+            case TokenType.LBRACKET:
+                value = symbols.LBRACKET
+            case TokenType.RBRACKET:
+                value = symbols.RBRACKET
+            case TokenType.COMMA:
+                value = symbols.COMMA
+            case TokenType.NEWLINE:
+                value = symbols.NEWLINE
+
         tokens.append(Token(type=type, value=value, position=state.into_tuple()))
 
     while state.index < len(text):
