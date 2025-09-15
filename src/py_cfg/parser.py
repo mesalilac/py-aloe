@@ -59,23 +59,59 @@ class ParserSyntaxError(Exception):
             print_line(line_index + 2, self.line_after)
 
 
+@dataclass
+class ParserState:
+    index: int = 0
+
+
 def parse(text: str, tokens: list[Token]) -> Document:
     items: T_CstItemsList = []
 
-    idx = 0
+    state = ParserState()
     sections: list[Section] = []
 
-    def peek(offset: int = 1) -> Token | None:
-        target = idx + offset
+    def peek(offset: int = 0) -> Token | None:
+        idx = state.index + offset
 
-        if not tokens or target < 0 or target >= len(tokens):
+        if not tokens or idx < 0 or idx >= len(tokens):
             return None
 
-        return tokens[target]
+        return tokens[idx]
 
-    while idx < len(tokens) and tokens[idx] != TokenType.EOF:
-        token = tokens[idx]
+    def peek_behind(offset: int = 0) -> Token | None:
+        idx = state.index - offset
 
-        idx += 1
+        if not tokens or idx < 0 or idx >= len(tokens):
+            return None
+
+        return tokens[idx]
+
+    def check(type_: TokenType, offset=0) -> bool:
+        tok = peek(offset)
+
+        return tok is not None and tok.type == type_
+
+    def check_behind(type_: TokenType, offset=0) -> bool:
+        tok = peek_behind(offset)
+
+        return tok is not None and tok.type == type_
+
+    def current() -> Token | None:
+        return None if state.index >= len(tokens) else tokens[state.index]
+
+    def advance(n=1) -> Token | None:
+        if state.index < 0 or state.index >= len(tokens):
+            return None
+
+        tok = tokens[state.index]
+
+        state.index += n
+
+        return tok
+
+    while state.index < len(tokens) and tokens[state.index] != TokenType.EOF:
+        token = tokens[state.index]
+
+        advance()
 
     return Document(items)
