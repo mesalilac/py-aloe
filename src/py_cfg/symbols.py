@@ -9,3 +9,4 @@ LBRACKET = "["
 RBRACKET = "]"
 COMMA = ","
 NEWLINE = "\n"
+DOUBLE_QUOTE = '"'

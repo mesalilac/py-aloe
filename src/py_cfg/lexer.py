@@ -153,18 +153,19 @@ def lex(text: str) -> list[Token]:
                 push_token(TokenType.NUMBER, float(buffer))
             else:
                 push_token(TokenType.IDENTIFIER, buffer)
-        elif ch == '"':
+        elif ch == symbols.DOUBLE_QUOTE:
             advance()
 
             buffer = ""
 
             while state.index < len(text) and (
-                text[state.index] != '"' and text[state.index] != symbols.NEWLINE
+                text[state.index] != symbols.DOUBLE_QUOTE
+                and text[state.index] != symbols.NEWLINE
             ):
                 buffer += text[state.index]
                 advance()
 
-            if text[state.index] == '"':
+            if text[state.index] == symbols.DOUBLE_QUOTE:
                 advance()
 
             push_token(TokenType.STRING, buffer)
