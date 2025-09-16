@@ -109,6 +109,9 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
     def current() -> Token | None:
         return peek(0)
 
+    def previous() -> Token | None:
+        return peek_behind(1)
+
     def report_error(message: str, tok: Token | None = None):
         if tok is None:
             tok = current()
