@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from py_cfg.lexer import TokenType, Token
 from py_cfg.cst import *
+from py_cfg.symbols import SECTION_PREFIX
 
 
 class ParserSyntaxError(Exception):
@@ -112,13 +113,13 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
     def previous() -> Token | None:
         return peek_behind(1)
 
-    def report_error(message: str, tok: Token | None = None):
+    def error(message: str, tok: Token | None = None) -> ParserSyntaxError:
         if tok is None:
             tok = current()
 
         position = tok.position if tok else (1, 1)
 
-        raise ParserSyntaxError(
+        return ParserSyntaxError(
             source=source, text=text, message=message, position=position
         )
 
@@ -136,6 +137,87 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
         token = current()
         assert token
 
-        advance()
+        current_scope = items if len(sections) == 0 else sections[-1].body_items
+
+        # LBRACKET = auto()  # [
+        # RBRACKET = auto()  # ]
+        # COMMA = auto()  #    ,
+
+        match token.type:
+            case TokenType.ILLEGAL:
+                error(f"Illegal character: {token.value}")
+            case TokenType.NEWLINE:
+                advance()
+            case TokenType.COMMENT:
+                current_scope.append(Comment(token.value))
+                advance()
+            case TokenType.BLANK_LINE:
+                current_scope.append(BlankLine())
+                advance()
+            case TokenType.EQUALS:
+                prev_token = previous()
+                next_token = peek(1)
+
+                if (
+                    prev_token is None
+                    or prev_token.value is None
+                    or prev_token.type != TokenType.IDENTIFIER
+                ):
+                    raise error("Expected an identifier before '='")
+                if (
+                    next_token is None
+                    or next_token.value is None
+                    or (
+                        next_token.type != TokenType.STRING
+                        and next_token.type != TokenType.NUMBER
+                        and next_token.type != TokenType.BOOLEAN
+                        and next_token.type != TokenType.LBRACKET
+                    )
+                ):
+                    raise error("Expected a string/number/boolean/array[] after '='")
+
+                if (
+                    next_token.type == TokenType.STRING
+                    or next_token.type == TokenType.NUMBER
+                    or next_token.type == TokenType.BOOLEAN
+                ):
+                    current_scope.append(
+                        Assignment(
+                            key=str(prev_token.value),
+                            value=next_token.value,
+                        )
+                    )
+                    advance(2)
+                elif next_token.type == TokenType.LBRACKET:
+                    # TODO: parse array
+                    pass
+                advance()
+            case TokenType.SECTION_PREFIX:
+                next_token = peek(1)
+
+                if next_token is None or next_token.value is None:
+                    raise error(
+                        "Expected an identifier after section prefix", next_token
+                    )
+
+                sections.append(Section(str(next_token.value), []))
+                advance(2)
+            case TokenType.LBRACE:
+                if len(sections) == 0:
+                    raise error("Unexpected '{' without section declaration")
+                advance()
+            case TokenType.RBRACE:
+                if len(sections) == 0:
+                    raise error("Unexpected '}' with no open section")
+                section = sections.pop()
+
+                if sections:
+                    sections[-1].body_items.append(section)
+                else:
+                    items.append(section)
+
+                advance()
+            case _:
+                advance()
 
     return Document(items)
