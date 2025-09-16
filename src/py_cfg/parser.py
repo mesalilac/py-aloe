@@ -4,10 +4,17 @@ from py_cfg.cst import *
 
 
 class ParserSyntaxError(Exception):
-    def __init__(self, *, text: str, message: str, position: tuple[int, int]):
+    def __init__(
+        self,
+        *,
+        source: str,
+        text: str,
+        message: str,
+        position: tuple[int, int],
+    ):
         self.message: str = message
         self.position: tuple[int, int] = position
-        self.source: str = "text"
+        self.source: str = source
         self.line: str = ""
         self.line_before: str | None = None
         self.line_after: str | None = None
@@ -64,7 +71,7 @@ class ParserState:
     index: int = 0
 
 
-def parse(text: str, tokens: list[Token]) -> Document:
+def parse(source: str, text: str, tokens: list[Token]) -> Document:
     items: T_CstItemsList = []
 
     state = ParserState()
@@ -108,7 +115,9 @@ def parse(text: str, tokens: list[Token]) -> Document:
 
         position = tok.position if tok else (1, 1)
 
-        raise ParserSyntaxError(text=text, message=message, position=position)
+        raise ParserSyntaxError(
+            source=source, text=text, message=message, position=position
+        )
 
     def advance(n=1) -> Token | None:
         if state.index < 0 or is_at_end():

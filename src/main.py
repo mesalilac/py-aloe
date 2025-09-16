@@ -16,7 +16,7 @@ dependencies = [
     # "pk3",
     "pk4",
     130,
-    3.14 
+    3.14
 ]
 
 @database {
@@ -36,7 +36,7 @@ dependencies = [
     pprint(tokens)
 
     try:
-        document = parse(tokens=tokens, text=text)
+        document = parse("text", tokens=tokens, text=text)
 
         pprint(document.items)
     except ParserSyntaxError as err:
