@@ -15,7 +15,7 @@ class ParserSyntaxError(Exception):
         lines = text.splitlines()
         line_num, col_num = self.position
         line_index = line_num - 1
-        if not (0 < line_index < len(lines)):
+        if not (0 <= line_index < len(lines)):
             return
         if line_index > 0:
             self.line_before = lines[line_index - 1]
