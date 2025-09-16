@@ -70,10 +70,13 @@ def parse(text: str, tokens: list[Token]) -> Document:
     state = ParserState()
     sections: list[Section] = []
 
+    def is_at_end() -> bool:
+        return state.index >= len(tokens)
+
     def peek(offset: int = 0) -> Token | None:
         idx = state.index + offset
 
-        if not tokens or idx < 0 or idx >= len(tokens):
+        if not tokens or is_at_end():
             return None
 
         return tokens[idx]
@@ -81,7 +84,7 @@ def parse(text: str, tokens: list[Token]) -> Document:
     def peek_behind(offset: int = 0) -> Token | None:
         idx = state.index - offset
 
-        if not tokens or idx < 0 or idx >= len(tokens):
+        if not tokens or idx < 0 or is_at_end():
             return None
 
         return tokens[idx]
@@ -97,10 +100,18 @@ def parse(text: str, tokens: list[Token]) -> Document:
         return tok is not None and tok.type == type_
 
     def current() -> Token | None:
-        return None if state.index >= len(tokens) else tokens[state.index]
+        return None if is_at_end() else tokens[state.index]
+
+    def report_error(message: str, tok: Token | None = None):
+        if tok is None:
+            tok = current()
+
+        position = tok.position if tok else (1, 1)
+
+        raise ParserSyntaxError(text=text, message=message, position=position)
 
     def advance(n=1) -> Token | None:
-        if state.index < 0 or state.index >= len(tokens):
+        if state.index < 0 or is_at_end():
             return None
 
         tok = tokens[state.index]
