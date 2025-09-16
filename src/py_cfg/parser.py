@@ -100,7 +100,7 @@ def parse(text: str, tokens: list[Token]) -> Document:
         return tok is not None and tok.type == type_
 
     def current() -> Token | None:
-        return None if is_at_end() else tokens[state.index]
+        return peek(0)
 
     def report_error(message: str, tok: Token | None = None):
         if tok is None:
@@ -121,7 +121,8 @@ def parse(text: str, tokens: list[Token]) -> Document:
         return tok
 
     while state.index < len(tokens) and tokens[state.index] != TokenType.EOF:
-        token = tokens[state.index]
+        token = current()
+        assert token
 
         advance()
 
