@@ -133,15 +133,50 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
 
         return tok
 
+    def parse_array() -> Array:
+        array = Array([])
+
+        tok = current()
+
+        if tok is None or tok.type != TokenType.LBRACKET:
+            return array
+
+        advance()
+
+        tok = current()
+        if tok is None:
+            return array
+
+        while not is_at_end() and tokens[state.index] != TokenType.RBRACKET:
+            tok = current()
+            if tok is None:
+                return array
+
+            match tok.type:
+                case TokenType.COMMENT:
+                    if tok.value is None:
+                        return array
+
+                    array.append_comment(str(tok.value))
+                case TokenType.STRING | TokenType.NUMBER | TokenType.BOOLEAN:
+                    if tok.value is None:
+                        return array
+
+                    array.append(tok.value)
+                case TokenType.LBRACKET:
+                    array.append(parse_array())
+                case TokenType.RBRACKET:
+                    break
+
+            advance()
+
+        return array
+
     while state.index < len(tokens) and tokens[state.index] != TokenType.EOF:
         token = current()
         assert token
 
         current_scope = items if len(sections) == 0 else sections[-1].body_items
-
-        # LBRACKET = auto()  # [
-        # RBRACKET = auto()  # ]
-        # COMMA = auto()  #    ,
 
         match token.type:
             case TokenType.ILLEGAL:
@@ -190,7 +225,10 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                     advance(2)
                 elif next_token.type == TokenType.LBRACKET:
                     # TODO: parse array
-                    pass
+                    advance()
+                    current_scope.append(
+                        Assignment(key=str(prev_token.value), value=parse_array())
+                    )
                 advance()
             case TokenType.SECTION_PREFIX:
                 next_token = peek(1)
