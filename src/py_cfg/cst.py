@@ -7,7 +7,7 @@ from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
 
-DEFAULT_INDENT = 4
+DEFAULT_INDENT_STEP = 4
 
 type CST_ItemType = Section | Assignment | Comment | BlankLine
 type ArrayItemType = Value | Comment
@@ -185,8 +185,13 @@ class Document(CstNode):
 
     # TODO: add params: compact: bool, indent_by: int = 4
     #       mirror the params in Cfg.save
-    def to_text(self) -> str:
+    def to_text(
+        self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
+    ) -> str:
         lines: list[str] = []
+
+        def increment_indent(current: int) -> int:
+            return current + indent_level_step
 
         def serialize_string(s: str) -> str:
             return '"' + s + '"'
@@ -198,7 +203,7 @@ class Document(CstNode):
             *, arr: Array, is_first_arr: bool, is_part_of_body: bool, indent_by: int = 0
         ) -> None:
             indent = " " * indent_by
-            array_body_indent = " " * (indent_by + DEFAULT_INDENT)
+            array_body_indent = " " * increment_indent(indent_by)
 
             if not is_first_arr:
                 lines.append(indent + symbols.LBRACKET)
@@ -216,7 +221,7 @@ class Document(CstNode):
                                     is_part_of_body=(
                                         True if index != len(arr._items) - 1 else False
                                     ),
-                                    indent_by=indent_by + DEFAULT_INDENT,
+                                    indent_by=increment_indent(indent_by),
                                 )
                             case str():
                                 header += serialize_string(str(item.value))
@@ -269,21 +274,22 @@ class Document(CstNode):
             lines.append(f"{indent}{symbols.COMMENT} {node.text}")
 
         def serialize_blank_line():
-            lines.append("")
+            if not compact:
+                lines.append("")
 
         def serialize_section(node: Section, indent_by: int = 0):
             indent = " " * indent_by
 
             header = f"{symbols.SECTION_PREFIX}{node.name}"
-            if node.inline_lbrace:
+            if node.inline_lbrace or compact:
                 header += f" {symbols.LBRACE}"
 
             lines.append(f"{indent}{header}")
 
-            if not node.inline_lbrace:
+            if not node.inline_lbrace and not compact:
                 lines.append(f"{indent}{symbols.LBRACE}")
 
-            serialize_items(node.body_items, indent_by=(indent_by + DEFAULT_INDENT))
+            serialize_items(node.body_items, indent_by=increment_indent(indent_by))
 
             lines.append(f"{indent}{symbols.RBRACE}")
 

@@ -1,6 +1,6 @@
 """high-level Cfg class"""
 
-from .cst import Document, Assignment, Section, AssignmentValueType
+from .cst import Document, Assignment, Section, AssignmentValueType, DEFAULT_INDENT_STEP
 from .lexer import lex
 from .parser import parse, ParserSyntaxError
 
@@ -48,7 +48,12 @@ class Cfg:
 
             return cls(document)
 
-    def save(self, filename: str | None = None) -> None:
+    def save(
+        self,
+        filename: str | None = None,
+        compact: bool = False,
+        indent_level_step: int = DEFAULT_INDENT_STEP,
+    ) -> None:
         path = filename if filename else self.filename
 
         if path is None:
@@ -57,7 +62,11 @@ class Cfg:
             )
 
         with open(path, "w") as f:
-            f.write(self.document.to_text())
+            f.write(
+                self.document.to_text(
+                    compact=compact, indent_level_step=indent_level_step
+                )
+            )
 
     def get(self, path: str) -> AssignmentValueType | None:
         """
