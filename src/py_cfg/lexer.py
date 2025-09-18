@@ -155,7 +155,12 @@ def lex(text: str) -> list[Token]:
                 advance()
 
             if tokens and tokens[-1].type == TokenType.EQUALS:
-                push_token(TokenType.STRING, buffer)
+                if buffer.lower() == "true":
+                    push_token(TokenType.BOOLEAN, bool(buffer))
+                elif buffer.lower() == "false":
+                    push_token(TokenType.BOOLEAN, bool(buffer))
+                else:
+                    push_token(TokenType.STRING, buffer)
             else:
                 push_token(TokenType.IDENTIFIER, buffer)
         elif ch.isdigit() or ch == "-":
