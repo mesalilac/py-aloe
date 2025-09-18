@@ -156,9 +156,9 @@ def lex(text: str) -> list[Token]:
 
             if tokens and tokens[-1].type == TokenType.EQUALS:
                 if buffer.lower() == "true":
-                    push_token(TokenType.BOOLEAN, bool(buffer))
+                    push_token(TokenType.BOOLEAN, True)
                 elif buffer.lower() == "false":
-                    push_token(TokenType.BOOLEAN, bool(buffer))
+                    push_token(TokenType.BOOLEAN, False)
                 else:
                     push_token(TokenType.STRING, buffer)
             else:
