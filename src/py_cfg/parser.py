@@ -232,13 +232,23 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                 advance()
             case TokenType.SECTION_PREFIX:
                 next_token = peek(1)
+                brace_token = peek(2)
+                is_inline = True
 
                 if next_token is None or next_token.value is None:
                     raise error(
                         "Expected an identifier after section prefix", next_token
                     )
 
-                sections.append(Section(str(next_token.value), []))
+                if brace_token:
+                    if brace_token.type == TokenType.LBRACE:
+                        is_inline = True
+                    else:
+                        is_inline = False
+
+                sections.append(
+                    Section(str(next_token.value), [], inline_lbrace=is_inline)
+                )
                 advance(2)
             case TokenType.LBRACE:
                 if len(sections) == 0:
