@@ -147,52 +147,33 @@ def test_parse_nested_section():
 
 def test_to_text():
     text = """# global settings
-    app_name = myapp
+app_name = "myapp"
+array = [
+    "package-1",
+    "package-2",
+    # "package-3",
+    "package-4"
+]
 
-    @database
-    {
-        host = localhost
-        port = 5432
-        user = admin
-        password = secret
+@database
+{
+    host = "localhost"
+    port = 5432
+    user = "admin"
+    password = "secret"
 
-        @pool {
-            max_connections = 20
-            timeout = 30
-        }
-    }"""
+    @pool {
+        max_connections = 20
+        timeout = 30
+    }
+}"""
 
     tokens = lex(text)
     document = parse("text", text, tokens)
 
-    expected_document = Document(
-        [
-            Comment("global settings"),
-            Assignment(key="app_name", value="myapp"),
-            BlankLine(),
-            Section(
-                name="database",
-                body_items=[
-                    Assignment(key="host", value="localhost"),
-                    Assignment(key="port", value=5432),
-                    Assignment(key="user", value="admin"),
-                    Assignment(key="password", value="secret"),
-                    BlankLine(),
-                    Section(
-                        name="pool",
-                        body_items=[
-                            Assignment(key="max_connections", value=20),
-                            Assignment(key="timeout", value=30),
-                        ],
-                        inline_lbrace=True,
-                    ),
-                ],
-                inline_lbrace=False,
-            ),
-        ]
-    )
+    expected_text = text
 
-    assert document.to_text() == expected_document.to_text()
+    assert document.to_text() == expected_text
 
 
 def test_syntax_error_missing_section_name():
