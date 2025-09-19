@@ -44,7 +44,7 @@ def test_cfg_get_array():
 
     cfg = Cfg.from_text(text)
 
-    assert cfg.get("array") == Array([Value(1), Value(2), Value(3), Value(4), Value(5)])
+    assert cfg.get("array") == Array.from_iter([1, 2, 3, 4, 5])
 
 
 def test_cfg_set():
@@ -64,9 +64,9 @@ def test_cfg_set_array():
 
     cfg = Cfg.from_text(text)
 
-    cfg.set("array", Array([Value(1), Value(2), Value(3), Value(4), Value(5)]))
+    cfg.set("array", Array.from_iter([1, 2, 3, 4, 5]))
 
-    assert cfg.get("array") == Array([Value(1), Value(2), Value(3), Value(4), Value(5)])
+    assert cfg.get("array") == Array.from_iter([1, 2, 3, 4, 5])
 
 
 def test_cfg_remove():

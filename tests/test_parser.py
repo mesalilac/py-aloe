@@ -25,7 +25,7 @@ def test_parse_key_value_array():
         [
             Assignment(
                 key="array",
-                value=Array([Value(1), Value(2), Value(3), Value(4), Value(5)]),
+                value=Array.from_iter([1, 2, 3, 4, 5]),
             )
         ]
     )
@@ -45,23 +45,19 @@ def test_parse_key_value_nested_array():
         [
             Assignment(
                 key="array",
-                value=Array(
+                value=Array.from_iter(
                     [
-                        Value(Array([Value(1), Value(2), Value(3), Value(4)])),
-                        Value(Array([Value(1), Value(2), Value(3), Value(4)])),
-                        Value(Array([Value(1), Value(2), Value(3), Value(4)])),
-                        Value(
-                            Array(
-                                [
-                                    Value(1),
-                                    Value(2),
-                                    Value(3),
-                                    Value(4),
-                                    Value(
-                                        Array([Value(1), Value(2), Value(3), Value(4)])
-                                    ),
-                                ]
-                            )
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter(
+                            [
+                                1,
+                                2,
+                                3,
+                                4,
+                                Array.from_iter([1, 2, 3, 4]),
+                            ]
                         ),
                     ]
                 ),
