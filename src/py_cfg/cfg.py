@@ -35,7 +35,7 @@ class Cfg:
     @classmethod
     def from_text(cls, text: str):
         tokens = lex(text)
-        document = parse(text, tokens)
+        document = parse("text", text, tokens)
         return cls(document)
 
     @classmethod
@@ -44,7 +44,7 @@ class Cfg:
             text = f.read()
 
             tokens = lex(text)
-            document = parse(text, tokens)
+            document = parse(filename, text, tokens)
 
             return cls(document)
 
