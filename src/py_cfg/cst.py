@@ -31,7 +31,7 @@ class Array(CstNode):
     _items: list[Value | Comment] = field(default_factory=list)
 
     @classmethod
-    def from_iter(cls, iter: Iterable):
+    def from_iter(cls, iter: Iterable[Value | Comment | T_ASSIGNMENT_VALUE]):
         array: list[Value | Comment] = []
 
         for item in iter:
