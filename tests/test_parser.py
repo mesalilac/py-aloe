@@ -65,8 +65,6 @@ def test_parse_key_value_nested_array():
         ]
     )
 
-    print(expected_document)
-
     assert document.items == expected_document.items
 
 
