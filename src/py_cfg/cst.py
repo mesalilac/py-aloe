@@ -37,7 +37,7 @@ class Array(CstNode):
         for item in iter:
             match item:
                 case Comment():
-                    array.append(Comment(item))
+                    array.append(item)
                 case Value():
                     array.append(item)
                 case _:
