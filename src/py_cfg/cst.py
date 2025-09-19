@@ -3,6 +3,7 @@
 from __future__ import annotations
 from typing import TypeAlias
 from dataclasses import dataclass, field
+from collections.abc import Iterable
 
 import py_cfg.symbols as symbols
 
@@ -28,6 +29,21 @@ class Value:
 @dataclass
 class Array(CstNode):
     _items: list[Value | Comment] = field(default_factory=list)
+
+    @classmethod
+    def from_iter(cls, iter: Iterable):
+        array: list[Value | Comment] = []
+
+        for item in iter:
+            match item:
+                case Comment():
+                    array.append(Comment(item))
+                case Value():
+                    array.append(item)
+                case _:
+                    array.append(Value(item))
+
+        return cls(array)
 
     def __iter__(self):
         return (i.value for i in self._items if isinstance(i, Value))
