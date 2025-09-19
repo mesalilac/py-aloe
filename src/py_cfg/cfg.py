@@ -85,7 +85,7 @@ class Cfg:
                         if node.name == part:
                             current_scope = node.body_items
 
-    def set(self, path: str, value: str) -> None:
+    def set(self, path: str, value: T_ASSIGNMENT_VALUE) -> None:
         path_parts = path.split(".")
 
         current_scope = self.document.items
