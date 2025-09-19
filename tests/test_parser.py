@@ -15,6 +15,24 @@ def test_parse_key_value():
     assert document.items == expected_document.items
 
 
+def test_parse_key_value_array():
+    text = "array = [1, 2, 3, 4, 5]"
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    expected_document = Document(
+        [
+            Assignment(
+                key="array",
+                value=Array([Value(1), Value(2), Value(3), Value(4), Value(5)]),
+            )
+        ]
+    )
+
+    assert document.items == expected_document.items
+
+
 def test_parse_section():
     text = """# global settings
 
