@@ -23,7 +23,7 @@ class CstNode:
 
 @dataclass
 class Value:
-    value: T_ASSIGNMENT_VALUE | Array
+    value: T_ASSIGNMENT_VALUE
 
 
 @dataclass
