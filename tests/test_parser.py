@@ -152,7 +152,14 @@ array = [
     "package-1",
     "package-2",
     # "package-3",
-    "package-4"
+    "package-4",
+    [
+        "package-1",
+        "package-2",
+        "package-3",
+        "package-4",
+        "package-5"
+    ]
 ]
 
 @database

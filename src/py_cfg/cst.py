@@ -192,6 +192,52 @@ class Document(CstNode):
         def serialize_boolean(s: str) -> str:
             return s.lower()
 
+        def serialize_array(
+            *, arr: Array, is_first_arr: bool, is_part_of_body: bool, indent_by: int = 0
+        ) -> None:
+            indent = " " * indent_by
+            array_body_indent = " " * (indent_by + DEFAULT_INDENT)
+
+            if not is_first_arr:
+                lines.append(indent + symbols.LBRACKET)
+
+            for index, item in enumerate(arr._items):
+                header = ""
+
+                match item:
+                    case Value():
+                        match item.value:
+                            case Array():
+                                serialize_array(
+                                    arr=item.value,
+                                    is_first_arr=False,
+                                    is_part_of_body=(
+                                        True if index != len(arr._items) - 1 else False
+                                    ),
+                                    indent_by=indent_by + DEFAULT_INDENT,
+                                )
+                            case str():
+                                header += serialize_string(str(item.value))
+                            case bool():
+                                header += serialize_boolean(str(item.value))
+                            case _:
+                                header += str(item.value)
+                    case Comment():
+                        header += symbols.COMMENT + " " + item.text
+
+                if header:
+                    if index != len(arr._items) - 1 and not isinstance(item, Comment):
+                        header += ","
+
+                    lines.append(array_body_indent + header)
+
+            close_array_line = indent + symbols.RBRACKET
+
+            if is_part_of_body:
+                close_array_line += symbols.COMMA
+
+            lines.append(close_array_line)
+
         def serialize_assignment(node: Assignment, indent_by: int = 0):
             indent = " " * indent_by
             value: str = str(node.value)
@@ -203,28 +249,16 @@ class Document(CstNode):
                 case bool():
                     lines.append(line + serialize_boolean(value))
                 case Array():
-                    array_body_indent = " " * (indent_by + DEFAULT_INDENT)
                     arr = node.value
 
                     lines.append(line + symbols.LBRACKET)
 
-                    for index, item in enumerate(arr._items):
-                        header = f"{array_body_indent}"
-
-                        match item:
-                            case Value():
-                                header += serialize_string(str(item.value))
-                            case Comment():
-                                header += symbols.COMMENT + " " + item.text
-
-                        if index != len(arr._items) - 1 and not isinstance(
-                            item, Comment
-                        ):
-                            header += ","
-
-                        lines.append(header)
-
-                    lines.append(indent + symbols.RBRACKET)
+                    serialize_array(
+                        arr=arr,
+                        is_first_arr=True,
+                        is_part_of_body=False,
+                        indent_by=indent_by,
+                    )
                 case _:
                     lines.append(line + value)
 
