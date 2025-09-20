@@ -1,6 +1,5 @@
 """Concrete syntax trees"""
 
-from __future__ import annotations
 from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
