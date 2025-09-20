@@ -150,9 +150,7 @@ class BlankLine(CstNode):
 class Section(CstNode):
     name: str
     inline_lbrace: bool = True
-    body_items: list[Section | Assignment | Comment | BlankLine] = field(
-        default_factory=list
-    )
+    body_items: list[CST_ItemType] = field(default_factory=list)
 
     def __str__(self):
         body = ", ".join(map(str, self.body_items))
