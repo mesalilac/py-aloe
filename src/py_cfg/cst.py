@@ -183,6 +183,8 @@ class Document(CstNode):
     def __eq__(self, other):
         return isinstance(other, Document) and self.items == other.items
 
+    # TODO: add params: compact: bool, indent_by: int = 4
+    #       mirror the params in Cfg.save
     def to_text(self) -> str:
         lines: list[str] = []
 
