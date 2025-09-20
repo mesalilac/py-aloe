@@ -11,7 +11,6 @@ import sys
 DEFAULT_INDENT = 4
 
 type CST_ItemType = Section | Assignment | Comment | BlankLine
-type CST_ItemsListType = list[CST_ItemType]
 type ArrayItemType = Value | Comment
 type AssignmentValueType = str | int | float | bool | Array
 
@@ -180,7 +179,7 @@ class Section(CstNode):
 
 
 class Document(CstNode):
-    def __init__(self, items: CST_ItemsListType):
+    def __init__(self, items: list[CST_ItemType]):
         self.items = items
 
     def __str__(self):
@@ -260,7 +259,7 @@ class Document(CstNode):
 
             lines.append(f"{indent}{symbols.RBRACE}")
 
-        def serialize_items(items: CST_ItemsListType, indent_by: int = 0):
+        def serialize_items(items: list[CST_ItemType], indent_by: int = 0):
             for item in items:
                 match item:
                     case Assignment():
