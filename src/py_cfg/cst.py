@@ -1,11 +1,11 @@
 """Concrete syntax trees"""
 
+import py_cfg.symbols as symbols
+import sys
+
 from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
-
-import py_cfg.symbols as symbols
-import sys
 
 DEFAULT_INDENT = 4
 
