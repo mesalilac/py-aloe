@@ -212,6 +212,8 @@ class Document(CstNode):
                         lines.append(header)
 
                     lines.append(indent + symbols.RBRACKET)
+                case _:
+                    lines.append(line + value)
 
         def serialize_comment(node: Comment, indent_by: int = 0):
             indent = " " * indent_by
