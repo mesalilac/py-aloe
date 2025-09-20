@@ -1,11 +1,12 @@
 """Concrete syntax trees"""
 
 from __future__ import annotations
-from typing import TypeAlias
+from typing import TypeAlias, SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
 
 import py_cfg.symbols as symbols
+import sys
 
 DEFAULT_INDENT = 4
 
@@ -28,11 +29,11 @@ class Value:
 
 @dataclass
 class Array(CstNode):
-    _items: list[Value | Comment] = field(default_factory=list)
+    _items: list[T_ARRAY_ITEM] = field(default_factory=list)
 
     @classmethod
-    def from_iter(cls, iter: Iterable[Value | Comment | T_ASSIGNMENT_VALUE], /):
-        array: list[Value | Comment] = []
+    def from_iter(cls, iter: Iterable[T_ARRAY_ITEM | T_ASSIGNMENT_VALUE], /):
+        array: list[T_ARRAY_ITEM] = []
 
         for item in iter:
             match item:
@@ -68,7 +69,29 @@ class Array(CstNode):
     def append_comment(self, text: str, /) -> None:
         self._items.append(Comment(text))
 
-    # TODO: add more methods
+    def strip_comments(self) -> list[Value]:
+        return [item for item in self._items if isinstance(item, Value)]
+
+    def pop(self, index: SupportsIndex = -1, /) -> T_ARRAY_ITEM:
+        return self._items.pop(index)
+
+    def index(
+        self,
+        value: T_ARRAY_ITEM,
+        start: SupportsIndex = 0,
+        stop: SupportsIndex = sys.maxsize,
+        /,
+    ) -> int:
+        return self._items.index(value, start, stop)
+
+    def count(self, value: T_ARRAY_ITEM, /) -> int:
+        return self._items.count(value)
+
+    def insert(self, index: SupportsIndex, object: T_ARRAY_ITEM, /) -> None:
+        self._items.insert(index, object)
+
+    def remove(self, value: T_ARRAY_ITEM, /) -> None:
+        self._items.remove(value)
 
 
 T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool | Array
@@ -155,6 +178,7 @@ class Section(CstNode):
 
 
 T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
+T_ARRAY_ITEM: TypeAlias = Value | Comment
 
 
 class Document(CstNode):
