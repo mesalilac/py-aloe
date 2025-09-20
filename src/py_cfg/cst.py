@@ -98,9 +98,9 @@ class Array:
         self._items.remove(value)
 
 
+@dataclass
 class Comment(CstNode):
-    def __init__(self, text):
-        self.text = text
+    text: str
 
     def __str__(self):
         return "Comment" + "(" + self.text + ")"
@@ -112,10 +112,10 @@ class Comment(CstNode):
         return isinstance(other, Comment) and self.text == other.text
 
 
+@dataclass
 class Assignment(CstNode):
-    def __init__(self, key: str, value: AssignmentValueType):
-        self.key = key
-        self.value = value
+    key: str
+    value: AssignmentValueType
 
     def __str__(self):
         key = self.key
@@ -134,10 +134,8 @@ class Assignment(CstNode):
         )
 
 
+@dataclass
 class BlankLine(CstNode):
-    def __init__(self):
-        pass
-
     def __str__(self):
         return "BlankLine" + "(" + ")"
 
@@ -148,16 +146,13 @@ class BlankLine(CstNode):
         return isinstance(other, BlankLine)
 
 
+@dataclass
 class Section(CstNode):
-    def __init__(
-        self,
-        name: str,
-        body_items: list[Section | Assignment | Comment | BlankLine],
-        inline_lbrace: bool = False,
-    ):
-        self.name = name
-        self.inline_lbrace = inline_lbrace
-        self.body_items = body_items
+    name: str
+    inline_lbrace: bool = True
+    body_items: list[Section | Assignment | Comment | BlankLine] = field(
+        default_factory=list
+    )
 
     def __str__(self):
         body = ", ".join(map(str, self.body_items))
@@ -178,9 +173,9 @@ class Section(CstNode):
         )
 
 
+@dataclass
 class Document(CstNode):
-    def __init__(self, items: list[CST_ItemType]):
-        self.items = items
+    items: list[CST_ItemType]
 
     def __str__(self):
         return "".join(map(str, self.items))

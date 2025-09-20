@@ -184,7 +184,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
             case TokenType.NEWLINE:
                 advance()
             case TokenType.COMMENT:
-                current_scope.append(Comment(token.value))
+                current_scope.append(Comment(str(token.value)))
                 advance()
             case TokenType.BLANK_LINE:
                 current_scope.append(BlankLine())
@@ -246,9 +246,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                     else:
                         is_inline = False
 
-                sections.append(
-                    Section(str(next_token.value), [], inline_lbrace=is_inline)
-                )
+                sections.append(Section(str(next_token.value), inline_lbrace=is_inline))
                 advance(2)
             case TokenType.LBRACE:
                 if len(sections) == 0:
