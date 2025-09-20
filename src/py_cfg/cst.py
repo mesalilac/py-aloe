@@ -31,7 +31,7 @@ class Array(CstNode):
     _items: list[Value | Comment] = field(default_factory=list)
 
     @classmethod
-    def from_iter(cls, iter: Iterable[Value | Comment | T_ASSIGNMENT_VALUE]):
+    def from_iter(cls, iter: Iterable[Value | Comment | T_ASSIGNMENT_VALUE], /):
         array: list[Value | Comment] = []
 
         for item in iter:
@@ -62,10 +62,10 @@ class Array(CstNode):
     def values(self) -> list:
         return [i.value for i in self._items if isinstance(i, Value)]
 
-    def append(self, value: T_ASSIGNMENT_VALUE) -> None:
+    def append(self, value: T_ASSIGNMENT_VALUE, /) -> None:
         self._items.append(Value(value))
 
-    def append_comment(self, text: str) -> None:
+    def append_comment(self, text: str, /) -> None:
         self._items.append(Comment(text))
 
     # TODO: add more methods
