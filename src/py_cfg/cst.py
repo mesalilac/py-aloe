@@ -173,16 +173,45 @@ class Document(CstNode):
     def to_text(self) -> str:
         lines: list[str] = []
 
+        def serialize_string(s: str) -> str:
+            return '"' + s + '"'
+
+        def serialize_boolean(s: str) -> str:
+            return s.lower()
+
         def serialize_assignment(node: Assignment, indent_by: int = 0):
             indent = " " * indent_by
             value: str = str(node.value)
+            line = f"{indent}{node.key} {symbols.EQUALS} "
 
-            if isinstance(node.value, str):
-                value = '"' + value + '"'
-            elif isinstance(node.value, bool):
-                value = value.lower()
+            match node.value:
+                case str():
+                    lines.append(line + serialize_string(value))
+                case bool():
+                    lines.append(line + serialize_boolean(value))
+                case Array():
+                    array_body_indent = " " * (indent_by + DEFAULT_INDENT)
+                    arr = node.value
 
-            lines.append(f"{indent}{node.key} {symbols.EQUALS} {value}")
+                    lines.append(line + symbols.LBRACKET)
+
+                    for index, item in enumerate(arr._items):
+                        header = f"{array_body_indent}"
+
+                        match item:
+                            case Value():
+                                header += serialize_string(str(item.value))
+                            case Comment():
+                                header += symbols.COMMENT + " " + item.text
+
+                        if index != len(arr._items) - 1 and not isinstance(
+                            item, Comment
+                        ):
+                            header += ","
+
+                        lines.append(header)
+
+                    lines.append(indent + symbols.RBRACKET)
 
         def serialize_comment(node: Comment, indent_by: int = 0):
             indent = " " * indent_by
