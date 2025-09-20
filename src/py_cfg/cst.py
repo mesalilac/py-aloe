@@ -1,7 +1,7 @@
 """Concrete syntax trees"""
 
 from __future__ import annotations
-from typing import TypeAlias, SupportsIndex
+from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
 
@@ -9,6 +9,11 @@ import py_cfg.symbols as symbols
 import sys
 
 DEFAULT_INDENT = 4
+
+type CST_ItemType = Section | Assignment | Comment | BlankLine
+type CST_ItemsListType = list[CST_ItemType]
+type ArrayItemType = Value | Comment
+type AssignmentValueType = str | int | float | bool | Array
 
 
 class CstNode:
@@ -24,16 +29,16 @@ class CstNode:
 
 @dataclass
 class Value:
-    value: T_ASSIGNMENT_VALUE
+    value: AssignmentValueType
 
 
 @dataclass
 class Array(CstNode):
-    _items: list[T_ARRAY_ITEM] = field(default_factory=list)
+    _items: list[ArrayItemType] = field(default_factory=list)
 
     @classmethod
-    def from_iter(cls, iter: Iterable[T_ARRAY_ITEM | T_ASSIGNMENT_VALUE], /):
-        array: list[T_ARRAY_ITEM] = []
+    def from_iter(cls, iter: Iterable[ArrayItemType | AssignmentValueType], /):
+        array: list[ArrayItemType] = []
 
         for item in iter:
             match item:
@@ -63,7 +68,7 @@ class Array(CstNode):
     def values(self) -> list:
         return [i.value for i in self._items if isinstance(i, Value)]
 
-    def append(self, value: T_ASSIGNMENT_VALUE, /) -> None:
+    def append(self, value: AssignmentValueType, /) -> None:
         self._items.append(Value(value))
 
     def append_comment(self, text: str, /) -> None:
@@ -72,29 +77,26 @@ class Array(CstNode):
     def strip_comments(self) -> list[Value]:
         return [item for item in self._items if isinstance(item, Value)]
 
-    def pop(self, index: SupportsIndex = -1, /) -> T_ARRAY_ITEM:
+    def pop(self, index: SupportsIndex = -1, /) -> ArrayItemType:
         return self._items.pop(index)
 
     def index(
         self,
-        value: T_ARRAY_ITEM,
+        value: ArrayItemType,
         start: SupportsIndex = 0,
         stop: SupportsIndex = sys.maxsize,
         /,
     ) -> int:
         return self._items.index(value, start, stop)
 
-    def count(self, value: T_ARRAY_ITEM, /) -> int:
+    def count(self, value: ArrayItemType, /) -> int:
         return self._items.count(value)
 
-    def insert(self, index: SupportsIndex, object: T_ARRAY_ITEM, /) -> None:
+    def insert(self, index: SupportsIndex, object: ArrayItemType, /) -> None:
         self._items.insert(index, object)
 
-    def remove(self, value: T_ARRAY_ITEM, /) -> None:
+    def remove(self, value: ArrayItemType, /) -> None:
         self._items.remove(value)
-
-
-T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool | Array
 
 
 class Comment(CstNode):
@@ -112,7 +114,7 @@ class Comment(CstNode):
 
 
 class Assignment(CstNode):
-    def __init__(self, key: str, value: T_ASSIGNMENT_VALUE):
+    def __init__(self, key: str, value: AssignmentValueType):
         self.key = key
         self.value = value
 
@@ -177,12 +179,8 @@ class Section(CstNode):
         )
 
 
-T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
-T_ARRAY_ITEM: TypeAlias = Value | Comment
-
-
 class Document(CstNode):
-    def __init__(self, items: T_CstItemsList):
+    def __init__(self, items: CST_ItemsListType):
         self.items = items
 
     def __str__(self):
@@ -262,7 +260,7 @@ class Document(CstNode):
 
             lines.append(f"{indent}{symbols.RBRACE}")
 
-        def serialize_items(items: T_CstItemsList, indent_by: int = 0):
+        def serialize_items(items: CST_ItemsListType, indent_by: int = 0):
             for item in items:
                 match item:
                     case Assignment():

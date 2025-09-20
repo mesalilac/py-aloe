@@ -1,9 +1,8 @@
 import py_cfg.symbols as symbols
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TypeAlias
 
-T_TOKEN_VALUE: TypeAlias = str | int | float | bool | None
+type TokenValueType = str | int | float | bool | None
 
 
 class TokenType(Enum):
@@ -28,7 +27,7 @@ class TokenType(Enum):
 @dataclass
 class Token:
     type: TokenType
-    value: T_TOKEN_VALUE
+    value: TokenValueType
     position: tuple[int, int]
 
 
@@ -76,7 +75,7 @@ def lex(text: str) -> list[Token]:
 
         return ch
 
-    def push_token(type: TokenType, value: T_TOKEN_VALUE = None) -> None:
+    def push_token(type: TokenType, value: TokenValueType = None) -> None:
         value = value
 
         match type:

@@ -73,7 +73,7 @@ class ParserState:
 
 
 def parse(source: str, text: str, tokens: list[Token]) -> Document:
-    items: T_CstItemsList = []
+    items: CST_ItemsListType = []
 
     state = ParserState()
     sections: list[Section] = []
