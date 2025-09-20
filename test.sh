@@ -1,3 +1,3 @@
 #/bin/sh
 
-uv run pytest -vv
+uv run pytest -sxvv

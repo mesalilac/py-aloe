@@ -5,3 +5,8 @@ EQUALS = "="
 SECTION_PREFIX = "@"
 LBRACE = "{"
 RBRACE = "}"
+LBRACKET = "["
+RBRACKET = "]"
+COMMA = ","
+NEWLINE = "\n"
+DOUBLE_QUOTE = '"'

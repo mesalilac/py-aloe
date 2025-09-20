@@ -1,12 +1,17 @@
 """Concrete syntax trees"""
 
-from __future__ import annotations
-from typing import TypeAlias
 import py_cfg.symbols as symbols
+import sys
+
+from typing import SupportsIndex
+from dataclasses import dataclass, field
+from collections.abc import Iterable
 
 DEFAULT_INDENT = 4
 
-T_ASSIGNMENT_VALUE: TypeAlias = str | int | float | bool
+type CST_ItemType = Section | Assignment | Comment | BlankLine
+type ArrayItemType = Value | Comment
+type AssignmentValueType = str | int | float | bool | Array
 
 
 class CstNode:
@@ -20,9 +25,81 @@ class CstNode:
         raise NotImplementedError
 
 
+@dataclass
+class Value:
+    value: AssignmentValueType
+
+
+@dataclass
+class Array:
+    _items: list[ArrayItemType] = field(default_factory=list)
+
+    @classmethod
+    def from_iter(cls, iter: Iterable[ArrayItemType | AssignmentValueType], /):
+        array: list[ArrayItemType] = []
+
+        for item in iter:
+            match item:
+                case Comment():
+                    array.append(item)
+                case Value():
+                    array.append(item)
+                case _:
+                    array.append(Value(item))
+
+        return cls(array)
+
+    def __iter__(self):
+        return (i.value for i in self._items if isinstance(i, Value))
+
+    def __str__(self):
+        body = ", ".join(map(str, self._items))
+        return "Array" + "[" + body + "]"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return isinstance(other, Array) and self._items == other._items
+
+    @property
+    def values(self) -> list:
+        return [i.value for i in self._items if isinstance(i, Value)]
+
+    def append(self, value: AssignmentValueType, /) -> None:
+        self._items.append(Value(value))
+
+    def append_comment(self, text: str, /) -> None:
+        self._items.append(Comment(text))
+
+    def strip_comments(self) -> list[Value]:
+        return [item for item in self._items if isinstance(item, Value)]
+
+    def pop(self, index: SupportsIndex = -1, /) -> ArrayItemType:
+        return self._items.pop(index)
+
+    def index(
+        self,
+        value: ArrayItemType,
+        start: SupportsIndex = 0,
+        stop: SupportsIndex = sys.maxsize,
+        /,
+    ) -> int:
+        return self._items.index(value, start, stop)
+
+    def count(self, value: ArrayItemType, /) -> int:
+        return self._items.count(value)
+
+    def insert(self, index: SupportsIndex, object: ArrayItemType, /) -> None:
+        self._items.insert(index, object)
+
+    def remove(self, value: ArrayItemType, /) -> None:
+        self._items.remove(value)
+
+
+@dataclass
 class Comment(CstNode):
-    def __init__(self, text):
-        self.text = text
+    text: str
 
     def __str__(self):
         return "Comment" + "(" + self.text + ")"
@@ -34,10 +111,10 @@ class Comment(CstNode):
         return isinstance(other, Comment) and self.text == other.text
 
 
+@dataclass
 class Assignment(CstNode):
-    def __init__(self, key: str, value: T_ASSIGNMENT_VALUE):
-        self.key = key
-        self.value = value
+    key: str
+    value: AssignmentValueType
 
     def __str__(self):
         key = self.key
@@ -56,10 +133,8 @@ class Assignment(CstNode):
         )
 
 
+@dataclass
 class BlankLine(CstNode):
-    def __init__(self):
-        pass
-
     def __str__(self):
         return "BlankLine" + "(" + ")"
 
@@ -70,20 +145,18 @@ class BlankLine(CstNode):
         return isinstance(other, BlankLine)
 
 
+@dataclass
 class Section(CstNode):
-    def __init__(
-        self,
-        name: str,
-        body_items: list[Section | Assignment | Comment | BlankLine],
-        inline_lbrace: bool = False,
-    ):
-        self.name = name
-        self.inline_lbrace = inline_lbrace
-        self.body_items = body_items
+    name: str
+    inline_lbrace: bool = True
+    body_items: list[CST_ItemType] = field(default_factory=list)
 
     def __str__(self):
         body = ", ".join(map(str, self.body_items))
-        return "Section" + "(" + self.name + " " + "{" + body + "}" + ")"
+        inline_display = "Inline:true " if self.inline_lbrace else "Inline:false "
+        return (
+            "Section" + "(" + self.name + " " + inline_display + "{" + body + "}" + ")"
+        )
 
     def __repr__(self):
         return self.__str__()
@@ -97,12 +170,9 @@ class Section(CstNode):
         )
 
 
-T_CstItemsList: TypeAlias = list[Section | Assignment | Comment | BlankLine]
-
-
+@dataclass
 class Document(CstNode):
-    def __init__(self, items: T_CstItemsList):
-        self.items = items
+    items: list[CST_ItemType]
 
     def __str__(self):
         return "".join(map(str, self.items))
@@ -113,19 +183,86 @@ class Document(CstNode):
     def __eq__(self, other):
         return isinstance(other, Document) and self.items == other.items
 
+    # TODO: add params: compact: bool, indent_by: int = 4
+    #       mirror the params in Cfg.save
     def to_text(self) -> str:
         lines: list[str] = []
+
+        def serialize_string(s: str) -> str:
+            return '"' + s + '"'
+
+        def serialize_boolean(s: str) -> str:
+            return s.lower()
+
+        def serialize_array(
+            *, arr: Array, is_first_arr: bool, is_part_of_body: bool, indent_by: int = 0
+        ) -> None:
+            indent = " " * indent_by
+            array_body_indent = " " * (indent_by + DEFAULT_INDENT)
+
+            if not is_first_arr:
+                lines.append(indent + symbols.LBRACKET)
+
+            for index, item in enumerate(arr._items):
+                header = ""
+
+                match item:
+                    case Value():
+                        match item.value:
+                            case Array():
+                                serialize_array(
+                                    arr=item.value,
+                                    is_first_arr=False,
+                                    is_part_of_body=(
+                                        True if index != len(arr._items) - 1 else False
+                                    ),
+                                    indent_by=indent_by + DEFAULT_INDENT,
+                                )
+                            case str():
+                                header += serialize_string(str(item.value))
+                            case bool():
+                                header += serialize_boolean(str(item.value))
+                            case _:
+                                header += str(item.value)
+                    case Comment():
+                        header += symbols.COMMENT + " " + item.text
+
+                if header:
+                    if index != len(arr._items) - 1 and not isinstance(item, Comment):
+                        header += ","
+
+                    lines.append(array_body_indent + header)
+
+            close_array_line = indent + symbols.RBRACKET
+
+            if is_part_of_body:
+                close_array_line += symbols.COMMA
+
+            lines.append(close_array_line)
 
         def serialize_assignment(node: Assignment, indent_by: int = 0):
             indent = " " * indent_by
             value: str = str(node.value)
+            line = f"{indent}{node.key} {symbols.EQUALS} "
 
-            if isinstance(node.value, str):
-                value = '"' + value + '"'
-            elif isinstance(node.value, bool):
-                value = value.lower()
+            match node.value:
+                case str():
+                    lines.append(line + serialize_string(value))
+                case bool():
+                    lines.append(line + serialize_boolean(value))
+                case Array():
+                    arr = node.value
 
-            lines.append(f"{indent}{node.key} {symbols.EQUALS} {value}")
+                    lines.append(line + symbols.LBRACKET)
+
+                    serialize_array(
+                        arr=arr,
+                        is_first_arr=True,
+                        is_part_of_body=False,
+                        indent_by=indent_by,
+                    )
+                case _:
+                    lines.append(line + value)
 
         def serialize_comment(node: Comment, indent_by: int = 0):
             indent = " " * indent_by
@@ -150,7 +287,7 @@ class Document(CstNode):
 
             lines.append(f"{indent}{symbols.RBRACE}")
 
-        def serialize_items(items: T_CstItemsList, indent_by: int = 0):
+        def serialize_items(items: list[CST_ItemType], indent_by: int = 0):
             for item in items:
                 match item:
                     case Assignment():

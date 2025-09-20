@@ -2,122 +2,200 @@ import py_cfg.symbols as symbols
 from dataclasses import dataclass, field
 from enum import Enum, auto
 
+type TokenValueType = str | int | float | bool | None
+
 
 class TokenType(Enum):
-    KEY = auto()
-    VALUE = auto()
+    IDENTIFIER = auto()
+    NUMBER = auto()
+    STRING = auto()
+    BOOLEAN = auto()
     EQUALS = auto()  # =
-    COMMENT = auto()
-    SECTION_NAME = auto()
+    COMMENT = auto()  # '# ...'
+    SECTION_PREFIX = auto()
     LBRACE = auto()  # {
     RBRACE = auto()  # }
+    LBRACKET = auto()  # [
+    RBRACKET = auto()  # ]
+    COMMA = auto()  # ,
     NEWLINE = auto()  # \n
     BLANK_LINE = auto()
+    ILLEGAL = auto()
     EOF = auto()
 
 
 @dataclass
 class Token:
     type: TokenType
-    value: str | None
-    pos: tuple[int, int]
-    str_literal: bool = False
+    value: TokenValueType
+    position: tuple[int, int]
 
 
 @dataclass
-class State:
+class LexerState:
     line = 1
     column = 1
+    index = 0
 
-    def into_tuple(self) -> tuple[int, int]:
+    def into_tuple(self):
         return (self.line, self.column)
+
+
+def is_number(s: str) -> bool:
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def is_float(s: str) -> bool:
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def lex(text: str) -> list[Token]:
     tokens: list[Token] = []
-    state = State()
+    state = LexerState()
 
-    def push_token(
-        type: TokenType, value: str | None = None, str_literal: bool = False
-    ):
-        tokens.append(
-            Token(
-                type=type,
-                value=value,
-                pos=state.into_tuple(),
-                str_literal=str_literal,
-            )
-        )
-
-    def insert_newline():
-        push_token(TokenType.NEWLINE)
-        state.line += 1
-
-    for line in text.splitlines():
-        line = line.strip()
-        state.column = 1
-
-        if line.isspace() or not line:
-            push_token(TokenType.BLANK_LINE)
-            state.line += 1
-            continue
-
-        if line.startswith(symbols.COMMENT):
-            comment = line.removeprefix(symbols.COMMENT).strip()
-            push_token(TokenType.COMMENT, comment)
-            insert_newline()
-            continue
-
-        if line.startswith(symbols.SECTION_PREFIX):
-            section_name = line.removeprefix(symbols.SECTION_PREFIX).strip()
-
-            if section_name.endswith(symbols.LBRACE):
-                section_name = section_name.removesuffix(symbols.LBRACE).strip()
-                push_token(TokenType.SECTION_NAME, section_name)
-                push_token(TokenType.LBRACE)
+    def advance(by: int = 1) -> str | None:
+        for _ in range(by):
+            if state.index >= len(text):
+                return None
+            ch = text[state.index]
+            state.index += 1
+            if ch == symbols.NEWLINE:
+                state.line += 1
+                state.column = 1
             else:
-                push_token(TokenType.SECTION_NAME, section_name)
+                state.column += 1
 
-            state.column += len(symbols.SECTION_PREFIX) + len(section_name)
-            insert_newline()
-            continue
+        return ch
 
-        if line == symbols.RBRACE:
-            push_token(TokenType.RBRACE)
-            state.column += len(symbols.RBRACE)
-            insert_newline()
-            continue
+    def push_token(type: TokenType, value: TokenValueType = None) -> None:
+        value = value
 
-        if line == symbols.LBRACE:
+        match type:
+            case TokenType.EQUALS:
+                value = symbols.EQUALS
+            case TokenType.SECTION_PREFIX:
+                value = symbols.SECTION_PREFIX
+            case TokenType.LBRACE:
+                value = symbols.LBRACE
+            case TokenType.RBRACE:
+                value = symbols.RBRACE
+            case TokenType.LBRACKET:
+                value = symbols.LBRACKET
+            case TokenType.RBRACKET:
+                value = symbols.RBRACKET
+            case TokenType.COMMA:
+                value = symbols.COMMA
+            case TokenType.NEWLINE:
+                value = symbols.NEWLINE
+
+        tokens.append(Token(type=type, value=value, position=state.into_tuple()))
+
+    while state.index < len(text):
+        ch = text[state.index]
+
+        if ch == symbols.NEWLINE:
+            if tokens and tokens[-1].type == TokenType.NEWLINE:
+                push_token(TokenType.BLANK_LINE)
+            else:
+                push_token(TokenType.NEWLINE)
+
+            advance()
+        elif ch.isspace():
+            advance()
+        elif ch == symbols.COMMA:
+            push_token(TokenType.COMMA)
+            advance()
+        elif ch == symbols.LBRACKET:
+            push_token(TokenType.LBRACKET)
+            advance()
+        elif ch == symbols.RBRACKET:
+            push_token(TokenType.RBRACKET)
+            advance()
+        elif ch == symbols.LBRACE:
             push_token(TokenType.LBRACE)
-            state.column += len(symbols.LBRACE)
-            insert_newline()
-            continue
+            advance()
+        elif ch == symbols.RBRACE:
+            push_token(TokenType.RBRACE)
+            advance()
+        elif ch == symbols.EQUALS:
+            push_token(TokenType.EQUALS)
+            advance()
+        elif ch == symbols.COMMENT:
+            advance()
 
-        if symbols.EQUALS in line:
-            key, value = line.split(symbols.EQUALS)
+            if text[state.index].isspace():
+                advance()
 
-            key = key.strip()
-            value = value.strip()
-            str_literal = False
+            buffer = ""
 
-            if (
-                value.startswith('"')
-                and value.endswith('"')
-                or value.startswith("'")
-                and value.endswith("'")
+            while state.index < len(text) and text[state.index] != symbols.NEWLINE:
+                buffer += text[state.index]
+                advance()
+
+            push_token(TokenType.COMMENT, buffer)
+        elif ch == symbols.SECTION_PREFIX:
+            push_token(TokenType.SECTION_PREFIX)
+            advance()
+        elif ch.isalpha() or ch == "_":
+            buffer = ""
+
+            while state.index < len(text) and (
+                text[state.index].isalpha() or text[state.index] == "_"
             ):
-                value = value[1:-1]
-                str_literal = True
+                buffer += text[state.index]
+                advance()
 
-            if key:
-                state.column += len(key)
-                push_token(TokenType.KEY, key)
-                push_token(TokenType.EQUALS)
-                state.column += len(value)
-                push_token(TokenType.VALUE, value, str_literal=str_literal)
+            if tokens and tokens[-1].type == TokenType.EQUALS:
+                if buffer.lower() == "true":
+                    push_token(TokenType.BOOLEAN, True)
+                elif buffer.lower() == "false":
+                    push_token(TokenType.BOOLEAN, False)
+                else:
+                    push_token(TokenType.STRING, buffer)
+            else:
+                push_token(TokenType.IDENTIFIER, buffer)
+        elif ch.isdigit() or ch == "-":
+            buffer = ""
 
-        insert_newline()
+            while state.index < len(text) and (
+                text[state.index].isdigit() or text[state.index] in ".-"
+            ):
+                buffer += text[state.index]
+                advance()
+
+            if is_number(buffer):
+                push_token(TokenType.NUMBER, int(buffer))
+            elif is_float(buffer):
+                push_token(TokenType.NUMBER, float(buffer))
+            else:
+                push_token(TokenType.IDENTIFIER, buffer)
+        elif ch == symbols.DOUBLE_QUOTE:
+            advance()
+
+            buffer = ""
+
+            while state.index < len(text) and (
+                text[state.index] != symbols.DOUBLE_QUOTE
+                and text[state.index] != symbols.NEWLINE
+            ):
+                buffer += text[state.index]
+                advance()
+
+            if text[state.index] == symbols.DOUBLE_QUOTE:
+                advance()
+
+            push_token(TokenType.STRING, buffer)
+        else:
+            push_token(TokenType.ILLEGAL, ch)
+            advance()
 
     push_token(TokenType.EOF)
 

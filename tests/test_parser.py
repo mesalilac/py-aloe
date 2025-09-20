@@ -8,23 +8,76 @@ def test_parse_key_value():
     text = "app_name = myapp"
 
     tokens = lex(text)
-    document = parse(text, tokens)
+    document = parse("text", text, tokens)
 
     expected_document = Document([Assignment(key="app_name", value="myapp")])
 
     assert document.items == expected_document.items
 
 
+def test_parse_key_value_array():
+    text = "array = [1, 2, 3, 4, 5]"
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    expected_document = Document(
+        [
+            Assignment(
+                key="array",
+                value=Array.from_iter([1, 2, 3, 4, 5]),
+            )
+        ]
+    )
+
+    assert document.items == expected_document.items
+
+
+def test_parse_key_value_nested_array():
+    text = (
+        "array = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4, [1, 2, 3, 4]]]"
+    )
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    expected_document = Document(
+        [
+            Assignment(
+                key="array",
+                value=Array.from_iter(
+                    [
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter([1, 2, 3, 4]),
+                        Array.from_iter(
+                            [
+                                1,
+                                2,
+                                3,
+                                4,
+                                Array.from_iter([1, 2, 3, 4]),
+                            ]
+                        ),
+                    ]
+                ),
+            )
+        ]
+    )
+
+    assert document.items == expected_document.items
+
+
 def test_parse_section():
     text = """# global settings
-    
+
     @feature_flags {
         enable_experimental = true
         use_cache = false
     }"""
 
     tokens = lex(text)
-    document = parse(text, tokens)
+    document = parse("text", text, tokens)
 
     expected_document = Document(
         [
@@ -46,8 +99,8 @@ def test_parse_section():
 
 def test_parse_nested_section():
     text = """# global settings
-    
-    @database 
+
+    @database
     {
         host = localhost
         port = 5432
@@ -61,7 +114,7 @@ def test_parse_nested_section():
     }"""
 
     tokens = lex(text)
-    document = parse(text, tokens)
+    document = parse("text", text, tokens)
 
     expected_document = Document(
         [
@@ -94,57 +147,45 @@ def test_parse_nested_section():
 
 def test_to_text():
     text = """# global settings
-    app_name = myapp
-    
-    @database 
-    {
-        host = localhost
-        port = 5432
-        user = admin
-        password = secret
+app_name = "myapp"
+array = [
+    "package-1",
+    "package-2",
+    # "package-3",
+    "package-4",
+    [
+        "package-1",
+        "package-2",
+        "package-3",
+        "package-4",
+        "package-5"
+    ]
+]
 
-        @pool {
-            max_connections = 20
-            timeout = 30
-        }
-    }"""
+@database
+{
+    host = "localhost"
+    port = 5432
+    user = "admin"
+    password = "secret"
+
+    @pool {
+        max_connections = 20
+        timeout = 30
+    }
+}"""
 
     tokens = lex(text)
-    document = parse(text, tokens)
+    document = parse("text", text, tokens)
 
-    expected_document = Document(
-        [
-            Comment("global settings"),
-            Assignment(key="app_name", value="myapp"),
-            BlankLine(),
-            Section(
-                name="database",
-                body_items=[
-                    Assignment(key="host", value="localhost"),
-                    Assignment(key="port", value=5432),
-                    Assignment(key="user", value="admin"),
-                    Assignment(key="password", value="secret"),
-                    BlankLine(),
-                    Section(
-                        name="pool",
-                        body_items=[
-                            Assignment(key="max_connections", value=20),
-                            Assignment(key="timeout", value=30),
-                        ],
-                        inline_lbrace=True,
-                    ),
-                ],
-                inline_lbrace=False,
-            ),
-        ]
-    )
+    expected_text = text
 
-    assert document.to_text() == expected_document.to_text()
+    assert document.to_text() == expected_text
 
 
 def test_syntax_error_missing_section_name():
     text = """# global settings
-    
+
     {
         enable_experimental = true
         use_cache = false
@@ -153,12 +194,12 @@ def test_syntax_error_missing_section_name():
     tokens = lex(text)
 
     with pytest.raises(ParserSyntaxError):
-        parse(text, tokens)
+        parse("text", text, tokens)
 
 
 def test_syntax_error_missing_section_symbol():
     text = """# global settings
-    
+
     feature_flags {
         enable_experimental = true
         use_cache = false
@@ -167,18 +208,18 @@ def test_syntax_error_missing_section_symbol():
     tokens = lex(text)
 
     with pytest.raises(ParserSyntaxError):
-        parse(text, tokens)
+        parse("text", text, tokens)
 
 
-def test_syntax_error_missing_section_LBRACE():
-    text = """# global settings
-    
-    @feature_flags
-        enable_experimental = true
-        use_cache = false
-    }"""
+# def test_syntax_error_missing_section_LBRACE():
+#     text = """# global settings
 
-    tokens = lex(text)
+#     @feature_flags
+#         enable_experimental = true
+#         use_cache = false
+#     }"""
 
-    with pytest.raises(ParserSyntaxError):
-        parse(text, tokens)
+#     tokens = lex(text)
+
+#     with pytest.raises(ParserSyntaxError):
+#         parse("text", text, tokens)

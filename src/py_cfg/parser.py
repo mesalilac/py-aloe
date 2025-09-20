@@ -1,22 +1,21 @@
 from dataclasses import dataclass
 from py_cfg.lexer import TokenType, Token
-from py_cfg.cst import (
-    Comment,
-    Document,
-    Section,
-    T_CstItemsList,
-    T_ASSIGNMENT_VALUE,
-    Assignment,
-    Comment,
-    BlankLine,
-)
+from py_cfg.cst import *
+from py_cfg.symbols import SECTION_PREFIX
 
 
 class ParserSyntaxError(Exception):
-    def __init__(self, *, text: str, message: str, position: tuple[int, int]):
+    def __init__(
+        self,
+        *,
+        source: str,
+        text: str,
+        message: str,
+        position: tuple[int, int],
+    ):
         self.message: str = message
         self.position: tuple[int, int] = position
-        self.source: str = "text"
+        self.source: str = source
         self.line: str = ""
         self.line_before: str | None = None
         self.line_after: str | None = None
@@ -24,7 +23,7 @@ class ParserSyntaxError(Exception):
         lines = text.splitlines()
         line_num, col_num = self.position
         line_index = line_num - 1
-        if not (0 < line_index < len(lines)):
+        if not (0 <= line_index < len(lines)):
             return
         if line_index > 0:
             self.line_before = lines[line_index - 1]
@@ -68,120 +67,203 @@ class ParserSyntaxError(Exception):
             print_line(line_index + 2, self.line_after)
 
 
-def parse(text: str, tokens: list[Token]) -> Document:
-    items: T_CstItemsList = []
+@dataclass
+class ParserState:
+    index: int = 0
 
-    index = 0
+
+def parse(source: str, text: str, tokens: list[Token]) -> Document:
+    items: list[CST_ItemType] = []
+
+    state = ParserState()
     sections: list[Section] = []
 
-    def peek(offset) -> Token | None:
-        target = index + offset
+    def is_at_end() -> bool:
+        return state.index >= len(tokens)
 
-        if target < 0 or target >= len(tokens):
+    def peek(offset: int = 0) -> Token | None:
+        idx = state.index + offset
+
+        if not tokens or is_at_end():
             return None
 
-        return tokens[target]
+        return tokens[idx]
 
-    while index < len(tokens) and tokens[index] != TokenType.EOF:
-        cst_items = items if len(sections) == 0 else sections[-1].body_items
-        token = tokens[index]
+    def peek_behind(offset: int = 0) -> Token | None:
+        idx = state.index - offset
 
-        if token.type == TokenType.KEY:
-            equals_token = peek(1)
-            value_token = peek(2)
+        if not tokens or idx < 0 or is_at_end():
+            return None
 
-            if not equals_token or equals_token.type != TokenType.EQUALS:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing '=' after key",
-                    position=token.pos,
-                )
+        return tokens[idx]
 
-            if not value_token or value_token.type != TokenType.VALUE:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing VALUE after '='",
-                    position=token.pos,
-                )
+    def check(type_: TokenType, offset=0) -> bool:
+        tok = peek(offset)
 
-            if token.value and value_token.value:
-                value: T_ASSIGNMENT_VALUE = value_token.value
+        return tok is not None and tok.type == type_
 
-                if not value_token.str_literal:
-                    if value_token.value.lower() == "true":
-                        value = True
-                    elif value_token.value.lower() == "false":
-                        value = False
-                    elif value_token.value.isdigit():
-                        value = int(value_token.value)
-                    elif (
-                        "." in value_token.value
-                        and value_token.value.replace(".", "", 1).isdigit()
-                    ):
-                        value = float(value_token.value)
+    def check_behind(type_: TokenType, offset=0) -> bool:
+        tok = peek_behind(offset)
 
-                assignment = Assignment(token.value, value)
-                cst_items.append(assignment)
+        return tok is not None and tok.type == type_
 
-        if token.type == TokenType.COMMENT:
-            comment = Comment(token.value or "")
+    def current() -> Token | None:
+        return peek(0)
 
-            cst_items.append(comment)
+    def previous() -> Token | None:
+        return peek_behind(1)
 
-        if token.type == TokenType.BLANK_LINE:
-            blank_line = BlankLine()
+    def error(message: str, tok: Token | None = None) -> ParserSyntaxError:
+        if tok is None:
+            tok = current()
 
-            cst_items.append(blank_line)
+        position = tok.position if tok else (1, 1)
 
-        if token.type == TokenType.SECTION_NAME and token.value:
-            tok1 = peek(1)
-            tok2 = peek(2)
+        return ParserSyntaxError(
+            source=source, text=text, message=message, position=position
+        )
 
-            if not (
-                (tok1 and tok1.type == TokenType.LBRACE)
-                or (
-                    tok1
-                    and tok1.type == TokenType.NEWLINE
-                    and tok2
-                    and tok2.type == TokenType.LBRACE
-                )
-            ):
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Missing '{' after section name",
-                    position=token.pos,
-                )
+    def advance(n=1) -> Token | None:
+        if state.index < 0 or is_at_end():
+            return None
 
-            section = Section(token.value, [])
+        tok = tokens[state.index]
 
-            if tok1 and tok1.type == TokenType.LBRACE:
-                section.inline_lbrace = True
+        state.index += n
 
-            sections.append(section)
+        return tok
 
-        if token.type == TokenType.LBRACE:
-            if not sections:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Unexpected '{' with no open sections",
-                    position=token.pos,
-                )
+    def parse_array() -> Array:
+        array = Array([])
 
-        if token.type == TokenType.RBRACE:
-            if not sections:
-                raise ParserSyntaxError(
-                    text=text,
-                    message="Unexpected '}' with no open sections",
-                    position=token.pos,
-                )
+        tok = current()
 
-            section = sections.pop()
+        if tok is None or tok.type != TokenType.LBRACKET:
+            return array
 
-            if sections:
-                sections[-1].body_items.append(section)
-            else:
-                items.append(section)
+        advance()
 
-        index += 1
+        tok = current()
+        if tok is None:
+            return array
+
+        while not is_at_end() and tokens[state.index] != TokenType.RBRACKET:
+            tok = current()
+            if tok is None:
+                return array
+
+            match tok.type:
+                case TokenType.COMMENT:
+                    if tok.value is None:
+                        return array
+
+                    array.append_comment(str(tok.value))
+                case TokenType.STRING | TokenType.NUMBER | TokenType.BOOLEAN:
+                    if tok.value is None:
+                        return array
+
+                    array.append(tok.value)
+                case TokenType.LBRACKET:
+                    array.append(parse_array())
+                case TokenType.RBRACKET:
+                    break
+
+            advance()
+
+        return array
+
+    while state.index < len(tokens) and tokens[state.index] != TokenType.EOF:
+        token = current()
+        assert token
+
+        current_scope = items if len(sections) == 0 else sections[-1].body_items
+
+        match token.type:
+            case TokenType.ILLEGAL:
+                error(f"Illegal character: {token.value}")
+            case TokenType.NEWLINE:
+                advance()
+            case TokenType.COMMENT:
+                current_scope.append(Comment(str(token.value)))
+                advance()
+            case TokenType.BLANK_LINE:
+                current_scope.append(BlankLine())
+                advance()
+            case TokenType.EQUALS:
+                prev_token = previous()
+                next_token = peek(1)
+
+                if (
+                    prev_token is None
+                    or prev_token.value is None
+                    or prev_token.type != TokenType.IDENTIFIER
+                ):
+                    raise error("Expected an identifier before '='")
+                if (
+                    next_token is None
+                    or next_token.value is None
+                    or (
+                        next_token.type != TokenType.STRING
+                        and next_token.type != TokenType.NUMBER
+                        and next_token.type != TokenType.BOOLEAN
+                        and next_token.type != TokenType.LBRACKET
+                    )
+                ):
+                    raise error("Expected a string/number/boolean/array[] after '='")
+
+                if (
+                    next_token.type == TokenType.STRING
+                    or next_token.type == TokenType.NUMBER
+                    or next_token.type == TokenType.BOOLEAN
+                ):
+                    current_scope.append(
+                        Assignment(
+                            key=str(prev_token.value),
+                            value=next_token.value,
+                        )
+                    )
+                    advance(2)
+                elif next_token.type == TokenType.LBRACKET:
+                    # TODO: parse array
+                    advance()
+                    current_scope.append(
+                        Assignment(key=str(prev_token.value), value=parse_array())
+                    )
+                advance()
+            case TokenType.SECTION_PREFIX:
+                next_token = peek(1)
+                brace_token = peek(2)
+                is_inline = True
+
+                if next_token is None or next_token.value is None:
+                    raise error(
+                        "Expected an identifier after section prefix", next_token
+                    )
+
+                if brace_token:
+                    if brace_token.type == TokenType.LBRACE:
+                        is_inline = True
+                    else:
+                        is_inline = False
+
+                sections.append(Section(str(next_token.value), inline_lbrace=is_inline))
+                advance(2)
+            case TokenType.LBRACE:
+                if len(sections) == 0:
+                    raise error("Unexpected '{' without section declaration")
+                advance()
+            case TokenType.RBRACE:
+                if len(sections) == 0:
+                    raise error("Unexpected '}' with no open section")
+                section = sections.pop()
+
+                if sections:
+                    sections[-1].body_items.append(section)
+                else:
+                    items.append(section)
+
+                advance()
+            case _:
+                advance()
 
     return Document(items)
