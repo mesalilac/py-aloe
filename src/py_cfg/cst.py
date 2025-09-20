@@ -32,7 +32,7 @@ class Value:
 
 
 @dataclass
-class Array(CstNode):
+class Array:
     _items: list[ArrayItemType] = field(default_factory=list)
 
     @classmethod
