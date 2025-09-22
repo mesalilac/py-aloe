@@ -38,7 +38,7 @@ dependencies = [
     try:
         document = parse("text", tokens=tokens, text=text)
 
-        pprint(document.items)
+        pprint(document._items)
     except ParserSyntaxError as err:
         err.print()
 

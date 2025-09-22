@@ -101,7 +101,7 @@ class SectionNode:
 
 @dataclass
 class Document:
-    items: list[AST_ItemType]
+    _items: list[AST_ItemType]
 
     def to_text(
         self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
@@ -225,6 +225,6 @@ class Document:
                     case SectionNode():
                         serialize_section(item, indent_by=indent_by)
 
-        serialize_items(self.items)
+        serialize_items(self._items)
 
         return "\n".join(lines)

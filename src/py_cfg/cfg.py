@@ -86,7 +86,7 @@ class Cfg:
         """
         path_parts = path.split(".")
 
-        current_scope = self.document.items
+        current_scope = self.document._items
 
         for index, part in enumerate(path_parts):
             for node in current_scope:
@@ -103,7 +103,7 @@ class Cfg:
     def set(self, path: str, value: AssignmentValueType) -> None:
         path_parts = path.split(".")
 
-        current_scope = self.document.items
+        current_scope = self.document._items
 
         for index, part in enumerate(path_parts):
             is_last_part = index == len(path_parts) - 1
@@ -135,7 +135,7 @@ class Cfg:
     def remove(self, path: str) -> None:
         path_parts = path.split(".")
 
-        current_scope = self.document.items
+        current_scope = self.document._items
         remove_target: int | None = None
 
         for index, part in enumerate(path_parts):
@@ -162,12 +162,12 @@ class Cfg:
 
     def clear(self, path: str | None = None) -> None:
         if path is None:
-            self.document.items.clear()
+            self.document._items.clear()
             return None
 
         path_parts = path.split(".")
 
-        current_scope = self.document.items
+        current_scope = self.document._items
 
         for index, part in enumerate(path_parts):
             is_last_part = index == len(path_parts) - 1

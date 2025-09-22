@@ -12,7 +12,7 @@ def test_parse_key_value():
 
     expected_document = Document([AssignmentNode(key="app_name", value="myapp")])
 
-    assert document.items == expected_document.items
+    assert document._items == expected_document._items
 
 
 def test_parse_key_value_array():
@@ -30,7 +30,7 @@ def test_parse_key_value_array():
         ]
     )
 
-    assert document.items == expected_document.items
+    assert document._items == expected_document._items
 
 
 def test_parse_key_value_nested_array():
@@ -65,7 +65,7 @@ def test_parse_key_value_nested_array():
         ]
     )
 
-    assert document.items == expected_document.items
+    assert document._items == expected_document._items
 
 
 def test_parse_section():
@@ -94,7 +94,7 @@ def test_parse_section():
         ]
     )
 
-    assert document.items == expected_document.items
+    assert document._items == expected_document._items
 
 
 def test_parse_nested_section():
@@ -142,7 +142,7 @@ def test_parse_nested_section():
         ]
     )
 
-    assert document.items == expected_document.items
+    assert document._items == expected_document._items
 
 
 def test_to_text():
