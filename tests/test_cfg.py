@@ -1,5 +1,5 @@
 from py_cfg.cfg import Cfg
-from py_cfg.cst import *
+from py_cfg.ast import *
 
 
 def test_cfg_get_string():

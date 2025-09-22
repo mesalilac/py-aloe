@@ -1,6 +1,6 @@
 """high-level Cfg class"""
 
-from .cst import Document, Assignment, Section, AssignmentValueType, DEFAULT_INDENT_STEP
+from .ast import Document, Assignment, Section, AssignmentValueType, DEFAULT_INDENT_STEP
 from .lexer import lex
 from .parser import parse, ParserSyntaxError
 

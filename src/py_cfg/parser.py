@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from py_cfg.lexer import TokenType, Token
-from py_cfg.cst import *
+from py_cfg.ast import *
 from py_cfg.symbols import SECTION_PREFIX
 
 
@@ -73,7 +73,7 @@ class ParserState:
 
 
 def parse(source: str, text: str, tokens: list[Token]) -> Document:
-    items: list[CST_ItemType] = []
+    items: list[AST_ItemType] = []
 
     state = ParserState()
     sections: list[Section] = []

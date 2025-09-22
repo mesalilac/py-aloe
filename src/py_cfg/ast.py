@@ -9,7 +9,7 @@ from collections.abc import Iterable
 
 DEFAULT_INDENT_STEP = 4
 
-type CST_ItemType = Section | Assignment | Comment | BlankLine
+type AST_ItemType = Section | Assignment | Comment | BlankLine
 type ArrayItemType = Value | Comment
 type AssignmentValueType = str | int | float | bool | Array
 
@@ -96,12 +96,12 @@ class BlankLine:
 class Section:
     name: str
     inline_lbrace: bool = True
-    body_items: list[CST_ItemType] = field(default_factory=list)
+    body_items: list[AST_ItemType] = field(default_factory=list)
 
 
 @dataclass
 class Document:
-    items: list[CST_ItemType]
+    items: list[AST_ItemType]
 
     def to_text(
         self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
@@ -211,7 +211,7 @@ class Document:
 
             lines.append(f"{indent}{symbols.RBRACE}")
 
-        def serialize_items(items: list[CST_ItemType], indent_by: int = 0):
+        def serialize_items(items: list[AST_ItemType], indent_by: int = 0):
             for item in items:
                 match item:
                     case Assignment():
