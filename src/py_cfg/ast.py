@@ -96,7 +96,7 @@ class BlankLineNode:
 class SectionNode:
     name: str
     inline_lbrace: bool = True
-    body_items: list[AST_ItemType] = field(default_factory=list)
+    body: list[AST_ItemType] = field(default_factory=list)
 
 
 @dataclass
@@ -209,7 +209,7 @@ class Document:
             if not node.inline_lbrace and not compact:
                 lines.append(f"{indent}{symbols.LBRACE}")
 
-            serialize_items(node.body_items, indent_by=increment_indent(indent_by))
+            serialize_items(node.body, indent_by=increment_indent(indent_by))
 
             lines.append(f"{indent}{symbols.RBRACE}")
 

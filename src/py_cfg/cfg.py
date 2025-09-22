@@ -98,7 +98,7 @@ class Cfg:
                             return node.value
                     case SectionNode():
                         if node.name == part:
-                            current_scope = node.body_items
+                            current_scope = node.body
 
     def set(self, path: str, value: AssignmentValueType) -> None:
         path_parts = path.split(".")
@@ -119,18 +119,18 @@ class Cfg:
                     case SectionNode():
                         if node.name == part:
                             part_found_in_scope = True
-                            current_scope = node.body_items
+                            current_scope = node.body
 
             if not part_found_in_scope:
                 if is_last_part:
                     assignment = AssignmentNode(key=part, value=value)
                     current_scope.append(assignment)
                 else:
-                    section = SectionNode(name=part, body_items=[])
+                    section = SectionNode(name=part, body=[])
                     current_scope.append(section)
 
                     if isinstance(current_scope[-1], SectionNode):
-                        current_scope = current_scope[-1].body_items
+                        current_scope = current_scope[-1].body
 
     def remove(self, path: str) -> None:
         path_parts = path.split(".")
@@ -152,7 +152,7 @@ class Cfg:
                             remove_target = node_index
                             break
                         elif node.name == part:
-                            current_scope = node.body_items
+                            current_scope = node.body
 
             if remove_target is not None:
                 break
@@ -180,7 +180,7 @@ class Cfg:
                             return None
                     case SectionNode():
                         if is_last_part:
-                            node.body_items.clear()
+                            node.body.clear()
                             return None
                         if node.name == part:
-                            current_scope = node.body_items
+                            current_scope = node.body

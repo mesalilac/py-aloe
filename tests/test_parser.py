@@ -85,7 +85,7 @@ def test_parse_section():
             BlankLineNode(),
             SectionNode(
                 name="feature_flags",
-                body_items=[
+                body=[
                     AssignmentNode(key="enable_experimental", value=True),
                     AssignmentNode(key="use_cache", value=False),
                 ],
@@ -122,7 +122,7 @@ def test_parse_nested_section():
             BlankLineNode(),
             SectionNode(
                 name="database",
-                body_items=[
+                body=[
                     AssignmentNode(key="host", value="localhost"),
                     AssignmentNode(key="port", value=5432),
                     AssignmentNode(key="user", value="admin"),
@@ -130,7 +130,7 @@ def test_parse_nested_section():
                     BlankLineNode(),
                     SectionNode(
                         name="pool",
-                        body_items=[
+                        body=[
                             AssignmentNode(key="max_connections", value=20),
                             AssignmentNode(key="timeout", value=30),
                         ],

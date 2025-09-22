@@ -176,7 +176,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
         token = current()
         assert token
 
-        current_scope = items if len(sections) == 0 else sections[-1].body_items
+        current_scope = items if len(sections) == 0 else sections[-1].body
 
         match token.type:
             case TokenType.ILLEGAL:
@@ -260,7 +260,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                 section = sections.pop()
 
                 if sections:
-                    sections[-1].body_items.append(section)
+                    sections[-1].body.append(section)
                 else:
                     items.append(section)
 
