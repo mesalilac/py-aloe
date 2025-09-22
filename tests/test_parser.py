@@ -10,7 +10,7 @@ def test_parse_key_value():
     tokens = lex(text)
     document = parse("text", text, tokens)
 
-    expected_document = Document([Assignment(key="app_name", value="myapp")])
+    expected_document = Document([AssignmentNode(key="app_name", value="myapp")])
 
     assert document.items == expected_document.items
 
@@ -23,7 +23,7 @@ def test_parse_key_value_array():
 
     expected_document = Document(
         [
-            Assignment(
+            AssignmentNode(
                 key="array",
                 value=Array.from_iter([1, 2, 3, 4, 5]),
             )
@@ -43,7 +43,7 @@ def test_parse_key_value_nested_array():
 
     expected_document = Document(
         [
-            Assignment(
+            AssignmentNode(
                 key="array",
                 value=Array.from_iter(
                     [
@@ -81,13 +81,13 @@ def test_parse_section():
 
     expected_document = Document(
         [
-            Comment("global settings"),
-            BlankLine(),
-            Section(
+            CommentNode("global settings"),
+            BlankLineNode(),
+            SectionNode(
                 name="feature_flags",
                 body_items=[
-                    Assignment(key="enable_experimental", value=True),
-                    Assignment(key="use_cache", value=False),
+                    AssignmentNode(key="enable_experimental", value=True),
+                    AssignmentNode(key="use_cache", value=False),
                 ],
                 inline_lbrace=True,
             ),
@@ -118,21 +118,21 @@ def test_parse_nested_section():
 
     expected_document = Document(
         [
-            Comment("global settings"),
-            BlankLine(),
-            Section(
+            CommentNode("global settings"),
+            BlankLineNode(),
+            SectionNode(
                 name="database",
                 body_items=[
-                    Assignment(key="host", value="localhost"),
-                    Assignment(key="port", value=5432),
-                    Assignment(key="user", value="admin"),
-                    Assignment(key="password", value="secret"),
-                    BlankLine(),
-                    Section(
+                    AssignmentNode(key="host", value="localhost"),
+                    AssignmentNode(key="port", value=5432),
+                    AssignmentNode(key="user", value="admin"),
+                    AssignmentNode(key="password", value="secret"),
+                    BlankLineNode(),
+                    SectionNode(
                         name="pool",
                         body_items=[
-                            Assignment(key="max_connections", value=20),
-                            Assignment(key="timeout", value=30),
+                            AssignmentNode(key="max_connections", value=20),
+                            AssignmentNode(key="timeout", value=30),
                         ],
                         inline_lbrace=True,
                     ),

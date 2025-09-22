@@ -9,8 +9,8 @@ from collections.abc import Iterable
 
 DEFAULT_INDENT_STEP = 4
 
-type AST_ItemType = Section | Assignment | Comment | BlankLine
-type ArrayItemType = Value | Comment
+type AST_ItemType = SectionNode | AssignmentNode | CommentNode | BlankLineNode
+type ArrayItemType = Value | CommentNode
 type AssignmentValueType = str | int | float | bool | Array
 
 
@@ -29,7 +29,7 @@ class Array:
 
         for item in iter:
             match item:
-                case Comment():
+                case CommentNode():
                     array.append(item)
                 case Value():
                     array.append(item)
@@ -49,7 +49,7 @@ class Array:
         self._items.append(Value(value))
 
     def append_comment(self, text: str, /) -> None:
-        self._items.append(Comment(text))
+        self._items.append(CommentNode(text))
 
     def strip_comments(self) -> list[Value]:
         return [item for item in self._items if isinstance(item, Value)]
@@ -77,23 +77,23 @@ class Array:
 
 
 @dataclass
-class Comment:
+class CommentNode:
     text: str
 
 
 @dataclass
-class Assignment:
+class AssignmentNode:
     key: str
     value: AssignmentValueType
 
 
 @dataclass
-class BlankLine:
+class BlankLineNode:
     pass
 
 
 @dataclass
-class Section:
+class SectionNode:
     name: str
     inline_lbrace: bool = True
     body_items: list[AST_ItemType] = field(default_factory=list)
@@ -147,11 +147,13 @@ class Document:
                                 header += serialize_boolean(str(item.value))
                             case _:
                                 header += str(item.value)
-                    case Comment():
+                    case CommentNode():
                         header += symbols.COMMENT + " " + item.text
 
                 if header:
-                    if index != len(arr._items) - 1 and not isinstance(item, Comment):
+                    if index != len(arr._items) - 1 and not isinstance(
+                        item, CommentNode
+                    ):
                         header += ","
 
                     lines.append(array_body_indent + header)
@@ -163,7 +165,7 @@ class Document:
 
             lines.append(close_array_line)
 
-        def serialize_assignment(node: Assignment, indent_by: int = 0):
+        def serialize_assignment(node: AssignmentNode, indent_by: int = 0):
             indent = " " * indent_by
             value: str = str(node.value)
             line = f"{indent}{node.key} {symbols.EQUALS} "
@@ -187,7 +189,7 @@ class Document:
                 case _:
                     lines.append(line + value)
 
-        def serialize_comment(node: Comment, indent_by: int = 0):
+        def serialize_comment(node: CommentNode, indent_by: int = 0):
             indent = " " * indent_by
             lines.append(f"{indent}{symbols.COMMENT} {node.text}")
 
@@ -195,7 +197,7 @@ class Document:
             if not compact:
                 lines.append("")
 
-        def serialize_section(node: Section, indent_by: int = 0):
+        def serialize_section(node: SectionNode, indent_by: int = 0):
             indent = " " * indent_by
 
             header = f"{symbols.SECTION_PREFIX}{node.name}"
@@ -214,13 +216,13 @@ class Document:
         def serialize_items(items: list[AST_ItemType], indent_by: int = 0):
             for item in items:
                 match item:
-                    case Assignment():
+                    case AssignmentNode():
                         serialize_assignment(item, indent_by=indent_by)
-                    case Comment():
+                    case CommentNode():
                         serialize_comment(item, indent_by=indent_by)
-                    case BlankLine():
+                    case BlankLineNode():
                         serialize_blank_line()
-                    case Section():
+                    case SectionNode():
                         serialize_section(item, indent_by=indent_by)
 
         serialize_items(self.items)

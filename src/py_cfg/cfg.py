@@ -1,6 +1,12 @@
 """high-level Cfg class"""
 
-from .ast import Document, Assignment, Section, AssignmentValueType, DEFAULT_INDENT_STEP
+from .ast import (
+    Document,
+    AssignmentNode,
+    SectionNode,
+    AssignmentValueType,
+    DEFAULT_INDENT_STEP,
+)
 from .lexer import lex
 from .parser import parse, ParserSyntaxError
 
@@ -87,10 +93,10 @@ class Cfg:
                 is_last_part = index == len(path_parts) - 1
 
                 match node:
-                    case Assignment():
+                    case AssignmentNode():
                         if is_last_part and node.key == part:
                             return node.value
-                    case Section():
+                    case SectionNode():
                         if node.name == part:
                             current_scope = node.body_items
 
@@ -105,25 +111,25 @@ class Cfg:
 
             for node in current_scope:
                 match node:
-                    case Assignment():
+                    case AssignmentNode():
                         if is_last_part and node.key == part:
                             part_found_in_scope = True
                             node.value = value
                             return None
-                    case Section():
+                    case SectionNode():
                         if node.name == part:
                             part_found_in_scope = True
                             current_scope = node.body_items
 
             if not part_found_in_scope:
                 if is_last_part:
-                    assignment = Assignment(key=part, value=value)
+                    assignment = AssignmentNode(key=part, value=value)
                     current_scope.append(assignment)
                 else:
-                    section = Section(name=part, body_items=[])
+                    section = SectionNode(name=part, body_items=[])
                     current_scope.append(section)
 
-                    if isinstance(current_scope[-1], Section):
+                    if isinstance(current_scope[-1], SectionNode):
                         current_scope = current_scope[-1].body_items
 
     def remove(self, path: str) -> None:
@@ -137,11 +143,11 @@ class Cfg:
 
             for node_index, node in enumerate(current_scope):
                 match node:
-                    case Assignment():
+                    case AssignmentNode():
                         if is_last_part and node.key == part:
                             remove_target = node_index
                             break
-                    case Section():
+                    case SectionNode():
                         if node.name == part and is_last_part:
                             remove_target = node_index
                             break
@@ -168,11 +174,11 @@ class Cfg:
 
             for node in current_scope:
                 match node:
-                    case Assignment():
+                    case AssignmentNode():
                         if is_last_part and node.key == part:
                             node.value = ""
                             return None
-                    case Section():
+                    case SectionNode():
                         if is_last_part:
                             node.body_items.clear()
                             return None

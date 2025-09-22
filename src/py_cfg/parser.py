@@ -76,7 +76,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
     items: list[AST_ItemType] = []
 
     state = ParserState()
-    sections: list[Section] = []
+    sections: list[SectionNode] = []
 
     def is_at_end() -> bool:
         return state.index >= len(tokens)
@@ -184,10 +184,10 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
             case TokenType.NEWLINE:
                 advance()
             case TokenType.COMMENT:
-                current_scope.append(Comment(str(token.value)))
+                current_scope.append(CommentNode(str(token.value)))
                 advance()
             case TokenType.BLANK_LINE:
-                current_scope.append(BlankLine())
+                current_scope.append(BlankLineNode())
                 advance()
             case TokenType.EQUALS:
                 prev_token = previous()
@@ -217,7 +217,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                     or next_token.type == TokenType.BOOLEAN
                 ):
                     current_scope.append(
-                        Assignment(
+                        AssignmentNode(
                             key=str(prev_token.value),
                             value=next_token.value,
                         )
@@ -227,7 +227,7 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                     # TODO: parse array
                     advance()
                     current_scope.append(
-                        Assignment(key=str(prev_token.value), value=parse_array())
+                        AssignmentNode(key=str(prev_token.value), value=parse_array())
                     )
                 advance()
             case TokenType.SECTION_PREFIX:
@@ -246,7 +246,9 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                     else:
                         is_inline = False
 
-                sections.append(Section(str(next_token.value), inline_lbrace=is_inline))
+                sections.append(
+                    SectionNode(str(next_token.value), inline_lbrace=is_inline)
+                )
                 advance(2)
             case TokenType.LBRACE:
                 if len(sections) == 0:
