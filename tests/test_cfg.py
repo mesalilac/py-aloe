@@ -1,5 +1,5 @@
-from py_cfg.cfg import Cfg
-from py_cfg.ast import *
+from aloe.cfg import Cfg
+from aloe.ast import *
 
 
 def test_cfg_get_string():

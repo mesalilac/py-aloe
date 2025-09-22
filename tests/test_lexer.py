@@ -1,6 +1,6 @@
-from py_cfg.lexer import lex
+from aloe.lexer import lex
 from typing import Literal
-from py_cfg.lexer import TokenType as Type
+from aloe.lexer import TokenType as Type
 
 
 def build_simple_line(*args):

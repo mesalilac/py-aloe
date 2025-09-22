@@ -1,7 +1,7 @@
 import pytest
 
-from py_cfg.lexer import lex
-from py_cfg.parser import *
+from aloe.lexer import lex
+from aloe.parser import *
 
 
 def test_parse_key_value():

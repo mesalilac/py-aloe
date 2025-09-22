@@ -1,6 +1,6 @@
-from py_cfg.cfg import Cfg
-from py_cfg.lexer import lex
-from py_cfg.parser import parse, ParserSyntaxError
+from aloe.cfg import Cfg
+from aloe.lexer import lex
+from aloe.parser import parse, ParserSyntaxError
 from pprint import pprint
 
 

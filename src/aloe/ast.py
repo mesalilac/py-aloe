@@ -1,6 +1,6 @@
 """Concrete syntax trees"""
 
-import py_cfg.symbols as symbols
+import aloe.symbols as symbols
 import sys
 
 from typing import SupportsIndex

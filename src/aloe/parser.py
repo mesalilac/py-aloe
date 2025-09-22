@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from py_cfg.lexer import TokenType, Token
-from py_cfg.ast import *
-from py_cfg.symbols import SECTION_PREFIX
+from aloe.lexer import TokenType, Token
+from aloe.ast import *
+from aloe.symbols import SECTION_PREFIX
 
 
 class ParserSyntaxError(Exception):
