@@ -14,10 +14,6 @@ type ArrayItemType = Value | Comment
 type AssignmentValueType = str | int | float | bool | Array
 
 
-class CstNode:
-    pass
-
-
 @dataclass
 class Value:
     value: AssignmentValueType
@@ -81,30 +77,30 @@ class Array:
 
 
 @dataclass
-class Comment(CstNode):
+class Comment:
     text: str
 
 
 @dataclass
-class Assignment(CstNode):
+class Assignment:
     key: str
     value: AssignmentValueType
 
 
 @dataclass
-class BlankLine(CstNode):
+class BlankLine:
     pass
 
 
 @dataclass
-class Section(CstNode):
+class Section:
     name: str
     inline_lbrace: bool = True
     body_items: list[CST_ItemType] = field(default_factory=list)
 
 
 @dataclass
-class Document(CstNode):
+class Document:
     items: list[CST_ItemType]
 
     def to_text(
