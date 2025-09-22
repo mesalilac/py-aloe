@@ -15,14 +15,7 @@ type AssignmentValueType = str | int | float | bool | Array
 
 
 class CstNode:
-    def __str__(self) -> str:
-        raise NotImplementedError
-
-    def __repr__(self) -> str:
-        raise NotImplementedError
-
-    def __eq__(self) -> bool:
-        raise NotImplementedError
+    pass
 
 
 @dataclass
@@ -51,16 +44,6 @@ class Array:
 
     def __iter__(self):
         return (i.value for i in self._items if isinstance(i, Value))
-
-    def __str__(self):
-        body = ", ".join(map(str, self._items))
-        return "Array" + "[" + body + "]"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, Array) and self._items == other._items
 
     @property
     def values(self) -> list:
@@ -101,48 +84,16 @@ class Array:
 class Comment(CstNode):
     text: str
 
-    def __str__(self):
-        return "Comment" + "(" + self.text + ")"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, Comment) and self.text == other.text
-
 
 @dataclass
 class Assignment(CstNode):
     key: str
     value: AssignmentValueType
 
-    def __str__(self):
-        key = self.key
-        value = self.value
-
-        return "Assignment" + "(" + f"{key=}, {value=}" + ")"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Assignment)
-            and self.key == other.key
-            and self.value == other.value
-        )
-
 
 @dataclass
 class BlankLine(CstNode):
-    def __str__(self):
-        return "BlankLine" + "(" + ")"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, BlankLine)
+    pass
 
 
 @dataclass
@@ -151,37 +102,10 @@ class Section(CstNode):
     inline_lbrace: bool = True
     body_items: list[CST_ItemType] = field(default_factory=list)
 
-    def __str__(self):
-        body = ", ".join(map(str, self.body_items))
-        inline_display = "Inline:true " if self.inline_lbrace else "Inline:false "
-        return (
-            "Section" + "(" + self.name + " " + inline_display + "{" + body + "}" + ")"
-        )
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Section)
-            and self.name == other.name
-            and self.inline_lbrace == other.inline_lbrace
-            and self.body_items == other.body_items
-        )
-
 
 @dataclass
 class Document(CstNode):
     items: list[CST_ItemType]
-
-    def __str__(self):
-        return "".join(map(str, self.items))
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, Document) and self.items == other.items
 
     def to_text(
         self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
