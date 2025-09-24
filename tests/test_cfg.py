@@ -69,6 +69,19 @@ def test_cfg_set_array():
     assert cfg.get("array") == Array.from_iter([1, 2, 3, 4, 5])
 
 
+def test_cfg_set_nested_array():
+    text = """array = [1, 2, 3 , 4]
+    """
+
+    cfg = Cfg.from_text(text)
+
+    cfg.set("array", Array.from_iter([1, 2, 3, 4, 5, Array.from_iter([1, 2, 3, 4, 5])]))
+
+    assert cfg.get("array") == Array.from_iter(
+        [1, 2, 3, 4, 5, Array.from_iter([1, 2, 3, 4, 5])]
+    )
+
+
 def test_cfg_remove():
     text = """string = "string"
     """
