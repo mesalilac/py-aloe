@@ -9,6 +9,7 @@ from .ast import (
 )
 from .lexer import lex
 from .parser import parse
+from typing import Self
 
 
 class Cfg:
@@ -39,13 +40,13 @@ class Cfg:
         self.document = document
 
     @classmethod
-    def from_text(cls, text: str):
+    def from_text(cls, text: str) -> Self:
         tokens = lex(text)
         document = parse("text", text, tokens)
         return cls(document)
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> Self:
         with open(filename, "r") as f:
             text = f.read()
 

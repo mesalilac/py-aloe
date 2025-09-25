@@ -6,6 +6,7 @@ import sys
 from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
+from typing import Self
 
 DEFAULT_INDENT_STEP = 4
 
@@ -24,7 +25,7 @@ class Array:
     _items: list[ArrayItemType] = field(default_factory=list)
 
     @classmethod
-    def from_iter(cls, iter: Iterable[ArrayItemType | AssignmentValueType], /):
+    def from_iter(cls, iter: Iterable[ArrayItemType | AssignmentValueType], /) -> Self:
         array: list[ArrayItemType] = []
 
         for item in iter:
