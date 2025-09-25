@@ -8,7 +8,7 @@ from .ast import (
     DEFAULT_INDENT_STEP,
 )
 from .lexer import lex
-from .parser import parse, ParserSyntaxError
+from .parser import parse
 
 
 class Cfg:
