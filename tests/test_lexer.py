@@ -1,5 +1,4 @@
 from aloe.lexer import lex
-from typing import Literal
 from aloe.lexer import TokenType as Type
 
 

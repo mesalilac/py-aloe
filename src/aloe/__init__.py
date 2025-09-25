@@ -14,5 +14,3 @@ cfg.set("default_username", "admin")
 cfg.save()
 ```
 """
-
-from .cfg import Cfg

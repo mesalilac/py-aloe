@@ -1,5 +1,5 @@
 from aloe.cfg import Cfg
-from aloe.ast import *
+from aloe.ast import Array
 
 
 def test_cfg_get_string():
@@ -35,7 +35,7 @@ def test_cfg_get_boolean():
 
     cfg = Cfg.from_text(text)
 
-    assert cfg.get("boolean") == True
+    assert cfg.get("boolean")
 
 
 def test_cfg_get_array():

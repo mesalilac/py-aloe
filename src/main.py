@@ -1,4 +1,4 @@
-from aloe.cfg import Cfg
+# from aloe.cfg import Cfg
 from aloe.lexer import lex
 from aloe.parser import parse, ParserSyntaxError
 from pprint import pprint

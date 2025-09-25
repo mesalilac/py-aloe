@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 from aloe.lexer import TokenType, Token
-from aloe.ast import *
-from aloe.symbols import SECTION_PREFIX
+from aloe.ast import (
+    AST_ItemType,
+    Document,
+    SectionNode,
+    Array,
+    CommentNode,
+    BlankLineNode,
+    AssignmentNode,
+)
 
 
 class ParserSyntaxError(Exception):

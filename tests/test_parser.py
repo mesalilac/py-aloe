@@ -1,7 +1,15 @@
 import pytest
 
 from aloe.lexer import lex
-from aloe.parser import *
+from aloe.parser import parse, ParserSyntaxError
+from aloe.ast import (
+    Document,
+    AssignmentNode,
+    Array,
+    CommentNode,
+    SectionNode,
+    BlankLineNode,
+)
 
 
 def test_parse_key_value():

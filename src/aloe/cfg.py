@@ -65,7 +65,7 @@ class Cfg:
 
         if path is None:
             raise ValueError(
-                f"No filename provided: pass a filename or set self.filename by calling Cfg.from_file()"
+                "No filename provided: pass a filename or set self.filename by calling Cfg.from_file()"
             )
 
         with open(path, "w") as f:
