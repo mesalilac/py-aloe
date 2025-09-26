@@ -8,6 +8,7 @@ from aloe.ast import (
     CommentNode,
     BlankLineNode,
     AssignmentNode,
+    Null,
 )
 
 
@@ -170,6 +171,11 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                         return array
 
                     array.append(tok.value)
+                case TokenType.NULL:
+                    if tok.value is None:
+                        return array
+
+                    array.append(Null)
                 case TokenType.LBRACKET:
                     array.append(parse_array())
                 case TokenType.RBRACKET:
@@ -213,20 +219,28 @@ def parse(source: str, text: str, tokens: list[Token]) -> Document:
                         next_token.type != TokenType.STRING
                         and next_token.type != TokenType.NUMBER
                         and next_token.type != TokenType.BOOLEAN
+                        and next_token.type != TokenType.NULL
                         and next_token.type != TokenType.LBRACKET
                     )
                 ):
-                    raise error("Expected a string/number/boolean/array[] after '='")
+                    raise error(
+                        "Expected a string/number/boolean/null/array[] after '='"
+                    )
 
                 if (
                     next_token.type == TokenType.STRING
                     or next_token.type == TokenType.NUMBER
                     or next_token.type == TokenType.BOOLEAN
+                    or next_token.type == TokenType.NULL
                 ):
+                    value = (
+                        Null if next_token.type == TokenType.NULL else next_token.value
+                    )
+
                     current_scope.append(
                         AssignmentNode(
                             key=str(prev_token.value),
-                            value=next_token.value,
+                            value=value,
                         )
                     )
                     advance(2)

@@ -55,6 +55,17 @@ def test_lex_key_value_boolean():
     assert tokens == expected
 
 
+def test_lex_key_value_null():
+    text = """name = null
+    """
+
+    tokens = [t.type for t in lex(text)]
+
+    expected = [*build_key_value_pair(Type.NULL), Type.EOF]
+
+    assert tokens == expected
+
+
 def test_lex_key_value_array():
     text = """array = ["string-1", "string-2", "string-3", "string-4"]
     """

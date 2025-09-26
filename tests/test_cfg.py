@@ -1,5 +1,5 @@
 from aloe.cfg import Cfg
-from aloe.ast import Array
+from aloe.ast import Array, Null
 
 
 def test_cfg_get_string():
@@ -102,3 +102,14 @@ def test_cfg_clear():
     cfg.clear()
 
     assert cfg.get("string") is None
+
+
+def test_cfg_clear_key():
+    text = """string = "string"
+    """
+
+    cfg = Cfg.from_text(text)
+
+    cfg.clear("string")
+
+    assert cfg.get("string") is Null

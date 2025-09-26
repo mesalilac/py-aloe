@@ -9,16 +9,29 @@ from aloe.ast import (
     CommentNode,
     SectionNode,
     BlankLineNode,
+    Null,
 )
 
 
 def test_parse_key_value():
-    text = "app_name = myapp"
+    text = """app_name = "myapp"
+    """
 
     tokens = lex(text)
     document = parse("text", text, tokens)
 
     expected_document = Document([AssignmentNode(key="app_name", value="myapp")])
+
+    assert document._items == expected_document._items
+
+
+def test_parse_key_value_null():
+    text = "app_name = NULL"
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    expected_document = Document([AssignmentNode(key="app_name", value=Null)])
 
     assert document._items == expected_document._items
 
@@ -34,6 +47,24 @@ def test_parse_key_value_array():
             AssignmentNode(
                 key="array",
                 value=Array.from_iter([1, 2, 3, 4, 5]),
+            )
+        ]
+    )
+
+    assert document._items == expected_document._items
+
+
+def test_parse_key_value_array_null():
+    text = "array = [null, null, null, null, null]"
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    expected_document = Document(
+        [
+            AssignmentNode(
+                key="array",
+                value=Array.from_iter([Null, Null, Null, Null, Null]),
             )
         ]
     )
@@ -110,10 +141,10 @@ def test_parse_nested_section():
 
     @database
     {
-        host = localhost
+        host = "localhost"
         port = 5432
-        user = admin
-        password = secret
+        user = "admin"
+        password = "secret"
 
         @pool {
             max_connections = 20
@@ -156,6 +187,7 @@ def test_parse_nested_section():
 def test_to_text():
     text = """# global settings
 app_name = "myapp"
+version = null
 array = [
     "package-1",
     "package-2",

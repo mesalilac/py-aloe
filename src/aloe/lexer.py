@@ -10,6 +10,7 @@ class TokenType(Enum):
     NUMBER = auto()
     STRING = auto()
     BOOLEAN = auto()
+    NULL = auto()
     EQUALS = auto()  # =
     COMMENT = auto()  # '# ...'
     SECTION_PREFIX = auto()
@@ -81,6 +82,8 @@ def lex(text: str) -> list[Token]:
         match type:
             case TokenType.EQUALS:
                 value = symbols.EQUALS
+            case TokenType.NULL:
+                value = "null"
             case TokenType.SECTION_PREFIX:
                 value = symbols.SECTION_PREFIX
             case TokenType.LBRACE:
@@ -153,13 +156,12 @@ def lex(text: str) -> list[Token]:
                 buffer += text[state.index]
                 advance()
 
-            if tokens and tokens[-1].type == TokenType.EQUALS:
-                if buffer.lower() == "true":
-                    push_token(TokenType.BOOLEAN, True)
-                elif buffer.lower() == "false":
-                    push_token(TokenType.BOOLEAN, False)
-                else:
-                    push_token(TokenType.STRING, buffer)
+            if buffer.lower() == "true":
+                push_token(TokenType.BOOLEAN, True)
+            elif buffer.lower() == "false":
+                push_token(TokenType.BOOLEAN, False)
+            elif buffer.lower() == "null":
+                push_token(TokenType.NULL)
             else:
                 push_token(TokenType.IDENTIFIER, buffer)
         elif ch.isdigit() or ch == "-":

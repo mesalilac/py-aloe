@@ -12,7 +12,16 @@ DEFAULT_INDENT_STEP = 4
 
 type AST_ItemType = SectionNode | AssignmentNode | CommentNode | BlankLineNode
 type ArrayItemType = Value | CommentNode
-type AssignmentValueType = str | int | float | bool | Array
+type AssignmentValueType = str | int | float | bool | Array | _NullType
+
+
+@dataclass
+class _NullType:
+    def __repr__(self):
+        return "Null"
+
+
+Null = _NullType()
 
 
 @dataclass
@@ -30,9 +39,7 @@ class Array:
 
         for item in iter:
             match item:
-                case CommentNode():
-                    array.append(item)
-                case Value():
+                case CommentNode() | Value():
                     array.append(item)
                 case _:
                     array.append(Value(item))
@@ -176,6 +183,8 @@ class Document:
                     lines.append(line + serialize_string(value))
                 case bool():
                     lines.append(line + serialize_boolean(value))
+                case _NullType():
+                    lines.append(line + "null")
                 case Array():
                     arr = node.value
 

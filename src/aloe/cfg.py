@@ -4,6 +4,7 @@ from .ast import (
     Document,
     AssignmentNode,
     SectionNode,
+    Null,
     AssignmentValueType,
     DEFAULT_INDENT_STEP,
 )
@@ -177,7 +178,7 @@ class Cfg:
                 match node:
                     case AssignmentNode():
                         if is_last_part and node.key == part:
-                            node.value = ""
+                            node.value = Null
                             return None
                     case SectionNode():
                         if is_last_part:
