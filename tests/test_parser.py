@@ -188,7 +188,8 @@ def test_to_text():
     text = """# global settings
 app_name = "myapp"
 version = null
-array = [
+array = ["package-1", "package-2", "package-3", "package-4", "package-5"]
+array_with_comments = [
     "package-1",
     "package-2",
     # "package-3",
