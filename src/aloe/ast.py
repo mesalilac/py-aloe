@@ -116,7 +116,7 @@ class Document:
     def to_text(
         self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
     ) -> str:
-        text = DocumentSerializer(self._items, indent_level_step).serialize()
+        text = DocumentSerializer(self._items, compact, indent_level_step).serialize()
 
         return text
 
@@ -124,6 +124,7 @@ class Document:
 @dataclass
 class DocumentSerializer:
     root: list[AST_ItemType]
+    compact: bool
     indent_level_step: int
     out: StringIO = field(default_factory=StringIO)
 
@@ -161,6 +162,10 @@ class DocumentSerializer:
         indent_by_body: int = self._indent_step(indent_by)
         indentation = " " * indent_by
         indentation_body = " " * indent_by_body
+
+        if self.compact:
+            expanded = False
+            arr._items = [item for item in arr._items if isinstance(item, Value)]
 
         self.out.write(symbols.LBRACKET)
         if expanded:
@@ -208,7 +213,8 @@ class DocumentSerializer:
         self.out.write(EOL)
 
     def _helper_serialize_blank_line(self) -> None:
-        self.out.write(EOL)
+        if not self.compact:
+            self.out.write(EOL)
 
     def _helper_serialize_section(self, node: SectionNode, indent_by: int = 0) -> None:
         indent_by_body: int = self._indent_step(indent_by)
@@ -218,7 +224,7 @@ class DocumentSerializer:
         self.out.write(symbols.SECTION_PREFIX)
         self.out.write(node.name)
 
-        if node.inline_lbrace:
+        if node.inline_lbrace or self.compact:
             self.out.write(" ")
             self.out.write(symbols.LBRACE)
             self.out.write(EOL)
