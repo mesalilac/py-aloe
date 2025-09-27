@@ -194,12 +194,23 @@ array_with_comments = [
     "package-2",
     # "package-3",
     "package-4",
+    ["package-1", "package-2", "package-3", "package-4", "package-5"],
     [
-        "package-1",
-        "package-2",
-        "package-3",
-        "package-4",
-        "package-5"
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
     ]
 ]
 
