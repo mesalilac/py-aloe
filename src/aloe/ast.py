@@ -7,7 +7,9 @@ from typing import SupportsIndex
 from dataclasses import dataclass, field
 from collections.abc import Iterable
 from typing import Self
+from io import StringIO
 
+EOL = symbols.NEWLINE
 DEFAULT_INDENT_STEP = 4
 
 type AST_ItemType = SectionNode | AssignmentNode | CommentNode | BlankLineNode
@@ -114,127 +116,146 @@ class Document:
     def to_text(
         self, compact: bool = False, indent_level_step: int = DEFAULT_INDENT_STEP
     ) -> str:
-        lines: list[str] = []
+        text = DocumentSerializer(self._items, compact, indent_level_step).serialize()
 
-        def increment_indent(current: int) -> int:
-            return current + indent_level_step
+        return text
 
-        def serialize_string(s: str) -> str:
-            return '"' + s + '"'
 
-        def serialize_boolean(s: str) -> str:
-            return s.lower()
+@dataclass
+class DocumentSerializer:
+    root: list[AST_ItemType]
+    compact: bool
+    indent_level_step: int
+    out: StringIO = field(default_factory=StringIO)
 
-        def serialize_array(
-            *, arr: Array, is_first_arr: bool, is_part_of_body: bool, indent_by: int = 0
-        ) -> None:
-            indent = " " * indent_by
-            array_body_indent = " " * increment_indent(indent_by)
+    def _indent_step(self, level) -> int:
+        return level + self.indent_level_step
 
-            if not is_first_arr:
-                lines.append(indent + symbols.LBRACKET)
+    @staticmethod
+    def _helper_serialize_string(s: str) -> str:
+        return f'"{s}"'
 
-            for index, item in enumerate(arr._items):
-                header = ""
+    @staticmethod
+    def _helper_serialize_boolean(b: bool) -> str:
+        return str(b).lower()
 
-                match item:
-                    case Value():
-                        match item.value:
-                            case Array():
-                                serialize_array(
-                                    arr=item.value,
-                                    is_first_arr=False,
-                                    is_part_of_body=(
-                                        True if index != len(arr._items) - 1 else False
-                                    ),
-                                    indent_by=increment_indent(indent_by),
-                                )
-                            case str():
-                                header += serialize_string(str(item.value))
-                            case bool():
-                                header += serialize_boolean(str(item.value))
-                            case _:
-                                header += str(item.value)
-                    case CommentNode():
-                        header += symbols.COMMENT + " " + item.text
+    def _helper_serialize_value(
+        self, value: AssignmentValueType, indent_by: int = 0
+    ) -> None:
+        match value:
+            case str():
+                self.out.write(self._helper_serialize_string(value))
+            case bool():
+                self.out.write(self._helper_serialize_boolean(value))
+            case _NullType():
+                self.out.write("null")
+            case Array():
+                self._helper_serialize_array(value, indent_by)
+            case _:
+                self.out.write(str(value))
 
-                if header:
-                    if index != len(arr._items) - 1 and not isinstance(
-                        item, CommentNode
-                    ):
-                        header += ","
+    def _helper_serialize_array(self, arr: Array, indent_by: int = 0) -> None:
+        expanded = (
+            any(isinstance(item, CommentNode) for item in arr._items)
+            or len(arr._items) > 10
+        )
+        indent_by_body: int = self._indent_step(indent_by)
+        indentation = " " * indent_by
+        indentation_body = " " * indent_by_body
 
-                    lines.append(array_body_indent + header)
+        if self.compact:
+            expanded = False
+            arr._items = [item for item in arr._items if isinstance(item, Value)]
 
-            close_array_line = indent + symbols.RBRACKET
+        self.out.write(symbols.LBRACKET)
+        if expanded:
+            self.out.write(EOL)
 
-            if is_part_of_body:
-                close_array_line += symbols.COMMA
+        for index, item in enumerate(arr._items):
+            match item:
+                case CommentNode():
+                    self._helper_serialize_comment(item, indent_by_body)
+                case Value():
+                    value = item.value
+                    if expanded:
+                        self.out.write(indentation_body)
+                    self._helper_serialize_value(value, indent_by_body)
 
-            lines.append(close_array_line)
+            if index != len(arr._items) - 1 and not isinstance(item, CommentNode):
+                self.out.write(symbols.COMMA)
+                if expanded:
+                    self.out.write(EOL)
+                else:
+                    self.out.write(" ")
 
-        def serialize_assignment(node: AssignmentNode, indent_by: int = 0):
-            indent = " " * indent_by
-            value: str = str(node.value)
-            line = f"{indent}{node.key} {symbols.EQUALS} "
+        if expanded:
+            self.out.write(EOL)
+            self.out.write(indentation)
+        self.out.write(symbols.RBRACKET)
 
-            match node.value:
-                case str():
-                    lines.append(line + serialize_string(value))
-                case bool():
-                    lines.append(line + serialize_boolean(value))
-                case _NullType():
-                    lines.append(line + "null")
-                case Array():
-                    arr = node.value
+    def _helper_serialize_assignment(
+        self, node: AssignmentNode, indent_by: int = 0
+    ) -> None:
+        indentation = " " * indent_by
 
-                    lines.append(line + symbols.LBRACKET)
+        self.out.write(indentation)
+        self.out.write(f"{node.key} = ")
 
-                    serialize_array(
-                        arr=arr,
-                        is_first_arr=True,
-                        is_part_of_body=False,
-                        indent_by=indent_by,
-                    )
-                case _:
-                    lines.append(line + value)
+        self._helper_serialize_value(node.value, indent_by)
 
-        def serialize_comment(node: CommentNode, indent_by: int = 0):
-            indent = " " * indent_by
-            lines.append(f"{indent}{symbols.COMMENT} {node.text}")
+        self.out.write(EOL)
 
-        def serialize_blank_line():
-            if not compact:
-                lines.append("")
+    def _helper_serialize_comment(self, node: CommentNode, indent_by: int = 0) -> None:
+        indentation = " " * indent_by
 
-        def serialize_section(node: SectionNode, indent_by: int = 0):
-            indent = " " * indent_by
+        self.out.write(indentation)
+        self.out.write(f"{symbols.COMMENT} {node.text}")
+        self.out.write(EOL)
 
-            header = f"{symbols.SECTION_PREFIX}{node.name}"
-            if node.inline_lbrace or compact:
-                header += f" {symbols.LBRACE}"
+    def _helper_serialize_blank_line(self) -> None:
+        if not self.compact:
+            self.out.write(EOL)
 
-            lines.append(f"{indent}{header}")
+    def _helper_serialize_section(self, node: SectionNode, indent_by: int = 0) -> None:
+        indent_by_body: int = self._indent_step(indent_by)
+        indentation = " " * indent_by
 
-            if not node.inline_lbrace and not compact:
-                lines.append(f"{indent}{symbols.LBRACE}")
+        self.out.write(indentation)
+        self.out.write(symbols.SECTION_PREFIX)
+        self.out.write(node.name)
 
-            serialize_items(node.body, indent_by=increment_indent(indent_by))
+        if node.inline_lbrace or self.compact:
+            self.out.write(" ")
+            self.out.write(symbols.LBRACE)
+            self.out.write(EOL)
+        else:
+            self.out.write(EOL)
+            self.out.write(indentation)
+            self.out.write(symbols.LBRACE)
+            self.out.write(EOL)
 
-            lines.append(f"{indent}{symbols.RBRACE}")
+        self._helper_serialize_items(node.body, indent_by_body)
 
-        def serialize_items(items: list[AST_ItemType], indent_by: int = 0):
-            for item in items:
-                match item:
-                    case AssignmentNode():
-                        serialize_assignment(item, indent_by=indent_by)
-                    case CommentNode():
-                        serialize_comment(item, indent_by=indent_by)
-                    case BlankLineNode():
-                        serialize_blank_line()
-                    case SectionNode():
-                        serialize_section(item, indent_by=indent_by)
+        if self.out.getvalue()[-1] != EOL:
+            self.out.write(EOL)
+        self.out.write(indentation)
+        self.out.write(symbols.RBRACE)
 
-        serialize_items(self._items)
+    def _helper_serialize_items(
+        self, items: list[AST_ItemType], indent_by: int = 0
+    ) -> None:
+        for item in items:
+            match item:
+                case SectionNode():
+                    self._helper_serialize_section(item, indent_by)
+                case CommentNode():
+                    self._helper_serialize_comment(item, indent_by)
+                case BlankLineNode():
+                    self._helper_serialize_blank_line()
+                case AssignmentNode():
+                    self._helper_serialize_assignment(item, indent_by)
 
-        return "\n".join(lines)
+    def serialize(self) -> str:
+        self._helper_serialize_items(self.root, 0)
+
+        return self.out.getvalue()

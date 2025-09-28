@@ -188,17 +188,29 @@ def test_to_text():
     text = """# global settings
 app_name = "myapp"
 version = null
-array = [
+array = ["package-1", "package-2", "package-3", "package-4", "package-5"]
+array_with_comments = [
     "package-1",
     "package-2",
     # "package-3",
     "package-4",
+    ["package-1", "package-2", "package-3", "package-4", "package-5"],
     [
-        "package-1",
-        "package-2",
-        "package-3",
-        "package-4",
-        "package-5"
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
     ]
 ]
 
@@ -221,6 +233,70 @@ array = [
     expected_text = text
 
     assert document.to_text() == expected_text
+
+
+def test_to_text_compact():
+    text = """# global settings
+app_name = "myapp"
+version = null
+array = ["package-1", "package-2", "package-3", "package-4", "package-5"]
+array_with_comments = [
+    "package-1",
+    "package-2",
+    # "package-3",
+    "package-4",
+    ["package-1", "package-2", "package-3", "package-4", "package-5"],
+    [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+    ]
+]
+
+@database
+{
+    host = "localhost"
+    port = 5432
+    user = "admin"
+    password = "secret"
+
+    @pool {
+        max_connections = 20
+        timeout = 30
+    }
+}"""
+    expected_text = """# global settings
+app_name = "myapp"
+version = null
+array = ["package-1", "package-2", "package-3", "package-4", "package-5"]
+array_with_comments = ["package-1", "package-2", "package-4", ["package-1", "package-2", "package-3", "package-4", "package-5"], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]]
+@database {
+    host = "localhost"
+    port = 5432
+    user = "admin"
+    password = "secret"
+    @pool {
+        max_connections = 20
+        timeout = 30
+    }
+}"""
+
+    tokens = lex(text)
+    document = parse("text", text, tokens)
+
+    assert document.to_text(compact=True) == expected_text
 
 
 def test_syntax_error_missing_section_name():
