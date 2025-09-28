@@ -1,4 +1,4 @@
-from aloe.cfg import Cfg
+from aloe.document import AloeDocument
 from aloe.ast import Array, Null
 
 
@@ -6,78 +6,78 @@ def test_cfg_get_string():
     text = """string = "string"
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    assert cfg.get("string") == "string"
+    assert doc.get("string") == "string"
 
 
 def test_cfg_get_int():
     text = """number = 1
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    assert cfg.get("number") == 1
+    assert doc.get("number") == 1
 
 
 def test_cfg_get_float():
     text = """float = 1.0
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    assert cfg.get("float") == 1.0
+    assert doc.get("float") == 1.0
 
 
 def test_cfg_get_boolean():
     text = """boolean = true
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    assert cfg.get("boolean")
+    assert doc.get("boolean")
 
 
 def test_cfg_get_array():
     text = """array = [1, 2, 3, 4, 5]
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    assert cfg.get("array") == Array.from_iter([1, 2, 3, 4, 5])
+    assert doc.get("array") == Array.from_iter([1, 2, 3, 4, 5])
 
 
 def test_cfg_set():
     text = """string = "string"
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.set("string", "string-1")
+    doc.set("string", "string-1")
 
-    assert cfg.get("string") == "string-1"
+    assert doc.get("string") == "string-1"
 
 
 def test_cfg_set_array():
     text = """array = [1, 2, 3 , 4]
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.set("array", Array.from_iter([1, 2, 3, 4, 5]))
+    doc.set("array", Array.from_iter([1, 2, 3, 4, 5]))
 
-    assert cfg.get("array") == Array.from_iter([1, 2, 3, 4, 5])
+    assert doc.get("array") == Array.from_iter([1, 2, 3, 4, 5])
 
 
 def test_cfg_set_nested_array():
     text = """array = [1, 2, 3 , 4]
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.set("array", Array.from_iter([1, 2, 3, 4, 5, Array.from_iter([1, 2, 3, 4, 5])]))
+    doc.set("array", Array.from_iter([1, 2, 3, 4, 5, Array.from_iter([1, 2, 3, 4, 5])]))
 
-    assert cfg.get("array") == Array.from_iter(
+    assert doc.get("array") == Array.from_iter(
         [1, 2, 3, 4, 5, Array.from_iter([1, 2, 3, 4, 5])]
     )
 
@@ -86,30 +86,30 @@ def test_cfg_remove():
     text = """string = "string"
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.remove("string")
+    doc.remove("string")
 
-    assert cfg.get("string") is None
+    assert doc.get("string") is None
 
 
 def test_cfg_clear():
     text = """string = "string"
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.clear()
+    doc.clear()
 
-    assert cfg.get("string") is None
+    assert doc.get("string") is None
 
 
 def test_cfg_clear_key():
     text = """string = "string"
     """
 
-    cfg = Cfg.from_text(text)
+    doc = AloeDocument.from_text(text)
 
-    cfg.clear("string")
+    doc.clear("string")
 
-    assert cfg.get("string") is Null
+    assert doc.get("string") is Null

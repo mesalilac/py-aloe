@@ -1,4 +1,4 @@
-"""high-level Cfg class"""
+"""high-level document class"""
 
 from .ast import (
     Document,
@@ -13,7 +13,7 @@ from .parser import parse
 from typing import Self
 
 
-class Cfg:
+class AloeDocument:
     """High-level class for parsing
 
     .. note::
@@ -22,17 +22,17 @@ class Cfg:
     Example:
 
     ```python
-    cfg = Cfg.from_file("example.cfg")
+    doc = AloeDocument.from_file("example.aloe")
 
-    print(cfg.get("network.port"))
+    print(doc.get("network.port"))
     #     ^ 8080
 
-    cfg.set("network.port", "3000")
+    doc.set("network.port", "3000")
 
-    print(cfg.get("network.port"))
+    print(doc.get("network.port"))
     #     ^ 3000
 
-    cfg.save("example.cfg")
+    doc.save("example.aloe")
     ```
     """
 
