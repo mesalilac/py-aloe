@@ -22,6 +22,8 @@ class AloeDocument:
     Example:
 
     ```python
+    from aloe.document import AloeDocument
+
     doc = AloeDocument.from_file("example.aloe")
 
     print(doc.get("network.port"))
